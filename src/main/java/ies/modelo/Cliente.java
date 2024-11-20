@@ -37,7 +37,7 @@ public class Cliente {
         administrador = false;
     }
 
-    public Cliente(int id, String dni, String nombre, String direccion, String telefono, String email, String password, boolean administrador) {
+    public Cliente(int id, String dni, String nombre, String direccion, String telefono, String email, String password) {
         this.id = id;
         this.dni = dni;
         this.nombre = nombre;
@@ -45,7 +45,7 @@ public class Cliente {
         this.telefono = telefono;
         this.email = email;
         this.password = password;
-        this.administrador = administrador;
+        //this.administrador = administrador;
     }
 
     
