@@ -1,6 +1,7 @@
 package ies;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
 import ies.controlador.ControladorCliente;
@@ -13,9 +14,31 @@ import ies.modelo.PagarTarjeta;
 import ies.modelo.Pasta;
 import ies.modelo.Pizza;
 import ies.modelo.SIZE;
+import ies.utils.DatabaseConf;
 
 public class Main {
     public static void main(String[] args) throws IllegalAccessException {
+
+        try {
+            DatabaseConf.dropAndCreateTable();
+        } catch (SQLException e) {
+            System.out.println("Te peinas.");
+            e.printStackTrace();
+        }
+
+        ControladorCliente controladorCliente = new ControladorCliente();
+        ControladorProducto controladorProducto = new ControladorProducto();
+
+        Cliente cliente = new Cliente("11111111P", "Pepe", "C/Falsa", "666000000", "zi@f.c", "cosa");
+
+        try {
+            controladorCliente.registrarCliente(cliente);
+        } catch (SQLException e) {
+            System.out.println("Te peinas.");
+            e.printStackTrace();
+        }
+
+        /* Antiguo Main
 
         /*Ingrediente echamas = new Ingrediente(1, "Queso", List.of("lactosa, adictivos"));
         Ingrediente baseTrigo = new Ingrediente(2, "Base con trigo", List.of("gluten, sulfitos"));
@@ -31,8 +54,7 @@ public class Main {
         PagarTarjeta pagoTarjeta = new PagarTarjeta();*/
 
         //Creando controladores necesarios
-        ControladorCliente controladorCliente = new ControladorCliente();
-        ControladorProducto controladorProducto = new ControladorProducto();
+        
         
         /*controladorCliente.registrarCliente("00000000Z", "Pepe", "C/aaaaaa", "000000000", "a@g.com", "lala");
         controladorCliente.registrarCliente("00000001X", "Pepa", "C/aaaaaa", "000000001", "b@g.com", "lale");
@@ -51,7 +73,7 @@ public class Main {
         controladorPedido.finalizarPedido(pagoTarjeta);
         controladorPedido.cancelarPedido();
 
-        controladorPedido.entregarPedido(1);*/
+        controladorPedido.entregarPedido(1); /* 
 
         //Probando que lee el archivo .txt
         List<Cliente> administradores;
@@ -100,5 +122,7 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        */
     }
 }

@@ -38,6 +38,8 @@ public class Varios {
     private final String rutaXML = "pizzas.xml";
     private final String rutaCSV = "ingredientes.csv";
 
+/* 
+
     // Lector a pelo
     public List<Cliente> leerAdministradores() throws IOException {
         try (Stream<String> lineas = Files.lines(Path.of(rutaTXT))) {
@@ -152,5 +154,5 @@ public class Varios {
             return true;
         }
 
-
+*/
 }

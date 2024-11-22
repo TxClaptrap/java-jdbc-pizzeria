@@ -1,14 +1,31 @@
 package ies.controlador;
 
+import java.sql.SQLException;
+
+import ies.controlador.dao.impl.ClienteDao;
+import ies.controlador.dao.impl.JdbcClienteDao;
 import ies.modelo.Cliente;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.bind.JAXBException;
 
 public class ControladorCliente {
+
+    ClienteDao clienteDao = new JdbcClienteDao();
+
+    public Cliente findByEmail(String email) throws SQLException {
+        return clienteDao.findByEmail(email);
+    }
+
+    public void registrarCliente(Cliente cliente) throws SQLException {
+        if (findByEmail(cliente.getEmail()) == null) {
+            clienteDao.insert(cliente);
+        }
+        else {
+            throw new IllegalArgumentException("Ya hay un usuario registrado con ese email.");
+        }
+    }
+
+    /* Antigua Pizzería 
+
     //clienteActual
     private Cliente clienteActual;
     private List<Cliente> listaClientes;
@@ -81,10 +98,13 @@ public class ControladorCliente {
         return false;
     }
 
+    /* 
     //Métodos de encapsulado, para no hacerlo todo desde GestorFicheros
     public List<Cliente> leerClientes() throws IOException {
         return gestorFicheros.leerAdministradores();
     } 
+
+    
 
     public boolean exportarClientesXML(List<Cliente> clientes) throws JAXBException {
 
@@ -94,4 +114,8 @@ public class ControladorCliente {
     public List<Cliente> importarClientesXML() throws JAXBException {
         return gestorFicheros.importarXML();
     }
+
+    *//* */
+
+
 }

@@ -12,7 +12,6 @@ import javax.xml.bind.Marshaller;
 import ies.controlador.ClientesWrapper;
 import ies.controlador.ControladorCliente;
 import ies.controlador.ControladorProducto;
-import ies.controlador.ControladorPruebas;
 import ies.controlador.GestorFicheros;
 import ies.controlador.PizzasWrapper;
 import ies.controlador.Varios;
@@ -25,7 +24,9 @@ import ies.modelo.Producto;
 import ies.modelo.ProductosSeparados;
 import ies.modelo.SIZE;
 
-public class Pruebas {
+public class Pruebas { 
+
+    /* 
     public static void main(String[] args) {
         ControladorCliente controladorCliente = new ControladorCliente();
         ControladorProducto controladorProducto = new ControladorProducto();
@@ -101,6 +102,5 @@ public class Pruebas {
     }
 
 
-
-
+*/
 }

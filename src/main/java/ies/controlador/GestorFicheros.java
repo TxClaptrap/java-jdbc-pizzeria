@@ -32,7 +32,7 @@ public class GestorFicheros {
     private final String rutaCSV = "ingredientes.csv";
 
     // Lector a pelo
-    public List<Cliente> leerAdministradores() throws IOException {
+    /*public List<Cliente> leerAdministradores() throws IOException {
         try (Stream<String> lineas = Files.lines(Path.of(rutaTXT))) {
             return lineas.map(linea -> {
                 List<String> administradores = List.of(linea.split("[,;|]"));
@@ -43,7 +43,7 @@ public class GestorFicheros {
                         administradores.get(5), administradores.get(6), true);
             }).toList();
         }
-    }
+    }*/
 
     // Lista de clientes a XML
     public boolean exportarXML(List<Cliente> clientes) throws JAXBException {
