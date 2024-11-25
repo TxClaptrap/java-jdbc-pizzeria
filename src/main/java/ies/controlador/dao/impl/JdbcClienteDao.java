@@ -16,6 +16,7 @@ public class JdbcClienteDao implements ClienteDao {
 
     final String INSERT_CLIENTE = "INSERT INTO clientes (dni, nombre, direccion, telefono, email, password) VALUES(?, ?, ?, ?, ?, ?)";
     final String FIND_EMAIL = "SELECT clientes.id, clientes.dni, clientes.nombre, clientes.direccion, clientes.telefono, clientes.email, clientes.password FROM clientes WHERE clientes.email = ?";
+    final String FIND_ALL = "SELECT clientes.id, clientes.dni, clientes.nombre, clientes.direccion, clientes.telefono, clientes.email, clientes.password FROM clientes";
 
     @Override
     public void insert(Cliente cliente) throws SQLException {
@@ -29,7 +30,8 @@ public class JdbcClienteDao implements ClienteDao {
                 pstmtCliente.setString(2, cliente.getNombre());
                 pstmtCliente.setString(3, cliente.getDireccion());
                 pstmtCliente.setString(4, cliente.getTelefono());
-                pstmtCliente.setString(4, cliente.getEmail());
+                pstmtCliente.setString(5, cliente.getEmail());
+                pstmtCliente.setString(6, cliente.getPassword());
                 pstmtCliente.executeUpdate();
                 System.out.println("Cliente insertado correctamente.");
                 // Obtiene el ID generado por el AUTO_INCREMENT
@@ -85,8 +87,23 @@ public class JdbcClienteDao implements ClienteDao {
 
     @Override
     public List<Cliente> findAll() throws SQLException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
+                DatabaseConf.PASSWORD);
+                PreparedStatement pstmtCliente = conexion.prepareStatement(FIND_ALL)) {
+            ResultSet rSet = pstmtCliente.executeQuery();
+            Cliente cliente = null;
+            List<Cliente> clientes = new ArrayList<>();
+            while (rSet.next()) {
+                cliente = new Cliente(rSet.getInt("id"), rSet.getString("dni"), rSet.getString("clientes.nombre"),
+                        rSet.getString("clientes.direccion"),
+                        rSet.getString("clientes.telefono"), rSet.getString("clientes.email"),
+                        rSet.getString("clientes.password"));
+                clientes.add(cliente);
+            }
+            System.out.print("\nCliente encontrado correctamente:");
+            return clientes;
+
+        }
     }
 
 }

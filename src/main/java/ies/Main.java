@@ -30,9 +30,17 @@ public class Main {
         ControladorProducto controladorProducto = new ControladorProducto();
 
         Cliente cliente = new Cliente("11111111P", "Pepe", "C/Falsa", "666000000", "zi@f.c", "cosa");
+        Cliente cliente2 = new Cliente("11111111Z", "Pepa", "C/Falsa", "766000000", "zo@f.c", "cosa");
 
         try {
             controladorCliente.registrarCliente(cliente);
+            controladorCliente.registrarCliente(cliente2);
+            
+            List<Cliente> clientes = controladorCliente.encontrarTodos();
+            for (Cliente c : clientes) {
+                System.out.println(c);
+            }
+            
         } catch (SQLException e) {
             System.out.println("Te peinas.");
             e.printStackTrace();

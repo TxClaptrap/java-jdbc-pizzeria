@@ -16,6 +16,7 @@ public class DatabaseConf {
             "    direccion VARCHAR(255) NOT NULL,\r\n" +
             "    telefono VARCHAR(255) NULL UNIQUE,\r\n" +
             "    email VARCHAR(255) NOT NULL UNIQUE,\r\n" +
+            "    password VARCHAR(255) NOT NULL,\r\n" +
             "    administrador BOOL DEFAULT false\r\n" +
             ");\r\n";
 

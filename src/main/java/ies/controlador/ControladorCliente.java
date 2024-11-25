@@ -1,6 +1,7 @@
 package ies.controlador;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import ies.controlador.dao.impl.ClienteDao;
 import ies.controlador.dao.impl.JdbcClienteDao;
@@ -11,17 +12,21 @@ public class ControladorCliente {
 
     ClienteDao clienteDao = new JdbcClienteDao();
 
-    public Cliente findByEmail(String email) throws SQLException {
+    public Cliente encontrarPorEmail(String email) throws SQLException {
         return clienteDao.findByEmail(email);
     }
 
     public void registrarCliente(Cliente cliente) throws SQLException {
-        if (findByEmail(cliente.getEmail()) == null) {
+        if (encontrarPorEmail(cliente.getEmail()) == null) {
             clienteDao.insert(cliente);
         }
         else {
             throw new IllegalArgumentException("Ya hay un usuario registrado con ese email.");
         }
+    }
+
+    public List<Cliente> encontrarTodos() throws SQLException {
+        return clienteDao.findAll();
     }
 
     /* Antigua Pizzería 
