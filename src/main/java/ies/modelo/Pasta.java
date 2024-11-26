@@ -14,14 +14,14 @@ public class Pasta  extends Producto {
     private List<Ingrediente> listaIngredientes;
 
     public Pasta(int id, String nombre, double precio, List<Ingrediente> listaIngredientes) {
-        super(id, nombre, precio);
+        super(nombre, precio);
         this.listaIngredientes = listaIngredientes;
     }
 
 
     
     public Pasta() {
-        super(0, null, 0);
+        super(null, 0);
     }
 
 

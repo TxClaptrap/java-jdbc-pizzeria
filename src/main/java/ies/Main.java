@@ -20,7 +20,7 @@ public class Main {
     public static void main(String[] args) throws IllegalAccessException {
 
         try {
-            DatabaseConf.dropAndCreateTable();
+            DatabaseConf.dropAndCreateTables();
         } catch (SQLException e) {
             System.out.println("Te peinas.");
             e.printStackTrace();

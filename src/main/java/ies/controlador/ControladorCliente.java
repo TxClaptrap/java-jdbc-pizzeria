@@ -3,7 +3,7 @@ package ies.controlador;
 import java.sql.SQLException;
 import java.util.List;
 
-import ies.controlador.dao.impl.ClienteDao;
+import ies.controlador.dao.ClienteDao;
 import ies.controlador.dao.impl.JdbcClienteDao;
 import ies.modelo.Cliente;
 

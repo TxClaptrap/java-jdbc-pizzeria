@@ -15,7 +15,7 @@ public class Pizza  extends Producto {
     private List<Ingrediente> listaIngredientes;
     
     public Pizza(int id, String nombre, double precio, SIZE tamano, List<Ingrediente> listaIngredientes) {
-        super(id, nombre, precio);
+        super(nombre, precio);
         this.tamano = tamano;
         this.listaIngredientes = listaIngredientes;
     }
@@ -23,7 +23,7 @@ public class Pizza  extends Producto {
     
     
     public Pizza() {
-        super(0, null, 0);
+        super(null, 0);
     }
 
 

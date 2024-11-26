@@ -13,12 +13,11 @@ public abstract class Producto {
     @XmlAttribute
     private int id;
     private String nombre;
-    private double precioTotal;
+    private double precio;
     
-    public Producto(int id, String nombre, double precioTotal) {
-        this.id = id;
+    public Producto(String nombre, double precio) {
         this.nombre = nombre;
-        this.precioTotal = precioTotal;
+        this.precio = precio;
     }
 
     public Producto() {
@@ -37,10 +36,10 @@ public abstract class Producto {
         this.nombre = nombre;
     }
     public double getPrecio() {
-        return precioTotal;
+        return precio;
     }
     public void setPrecio(double precio) {
-        this.precioTotal = precio;
+        this.precio = precio;
     } 
 
     

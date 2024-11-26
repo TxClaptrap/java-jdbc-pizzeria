@@ -24,8 +24,7 @@ public class Ingrediente {
     public Ingrediente() {
     }
 
-    public Ingrediente(int id, String nombre, List<String> alergenos) {
-        this.id = id;
+    public Ingrediente(String nombre, List<String> alergenos) {
         this.nombre = nombre;
         this.alergenos = alergenos;
     }
