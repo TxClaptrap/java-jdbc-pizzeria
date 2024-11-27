@@ -20,7 +20,7 @@ public class ControladorProducto {
 ProductoDao productoDao = new JdbcProductoDao();
 
     public void registrarProducto(Producto producto) throws SQLException {
-        productoDao.insert(producto);
+        productoDao.insertProducto(producto);
     }
 
     /* 
