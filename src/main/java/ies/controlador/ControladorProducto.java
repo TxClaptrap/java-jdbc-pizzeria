@@ -2,14 +2,28 @@ package ies.controlador;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
+import ies.controlador.dao.ClienteDao;
+import ies.controlador.dao.ProductoDao;
+import ies.controlador.dao.impl.JdbcClienteDao;
+import ies.controlador.dao.impl.JdbcProductoDao;
 import ies.modelo.Ingrediente;
+import ies.modelo.Producto;
 
 public class ControladorProducto {
+
+ProductoDao productoDao = new JdbcProductoDao();
+
+    public void registrarProducto(Producto producto) throws SQLException {
+        productoDao.insert(producto);
+    }
+
+    /* 
     GestorFicheros gestorFicheros;
 
     public ControladorProducto() {
@@ -25,5 +39,6 @@ public class ControladorProducto {
     public List<Ingrediente> importarIngredientesCSV() throws FileNotFoundException, IOException {
         return gestorFicheros.importarCSV();
     }
+        */
 
 }

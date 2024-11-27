@@ -13,6 +13,7 @@ import ies.modelo.Ingrediente;
 import ies.modelo.PagarTarjeta;
 import ies.modelo.Pasta;
 import ies.modelo.Pizza;
+import ies.modelo.Producto;
 import ies.modelo.SIZE;
 import ies.utils.DatabaseConf;
 
@@ -32,6 +33,9 @@ public class Main {
         Cliente cliente = new Cliente("11111111P", "Pepe", "C/Falsa", "666000000", "zi@f.c", "cosa");
         Cliente cliente2 = new Cliente("11111111Z", "Pepa", "C/Falsa", "766000000", "zo@f.c", "cosa");
 
+        Producto carbonara = new Pizza("Carbonara", 10, SIZE.GRANDE, null);
+
+
         try {
             controladorCliente.registrarCliente(cliente);
             controladorCliente.registrarCliente(cliente2);
@@ -43,6 +47,13 @@ public class Main {
             
         } catch (SQLException e) {
             System.out.println("Te peinas.");
+            e.printStackTrace();
+        }
+
+        try {
+            controladorProducto.registrarProducto(carbonara);
+        } catch (SQLException e) {
+            System.out.println("Te peinas");
             e.printStackTrace();
         }
 

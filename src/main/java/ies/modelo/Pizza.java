@@ -14,7 +14,7 @@ public class Pizza  extends Producto {
     @XmlElement(name = "ingrediente")
     private List<Ingrediente> listaIngredientes;
     
-    public Pizza(int id, String nombre, double precio, SIZE tamano, List<Ingrediente> listaIngredientes) {
+    public Pizza(String nombre, double precio, SIZE tamano, List<Ingrediente> listaIngredientes) {
         super(nombre, precio);
         this.tamano = tamano;
         this.listaIngredientes = listaIngredientes;
