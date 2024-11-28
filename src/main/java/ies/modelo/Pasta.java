@@ -13,7 +13,7 @@ public class Pasta  extends Producto {
     @XmlElement(name = "ingrediente")
     private List<Ingrediente> listaIngredientes;
 
-    public Pasta(int id, String nombre, double precio, List<Ingrediente> listaIngredientes) {
+    public Pasta(String nombre, double precio, List<Ingrediente> listaIngredientes) {
         super(nombre, precio);
         this.listaIngredientes = listaIngredientes;
     }

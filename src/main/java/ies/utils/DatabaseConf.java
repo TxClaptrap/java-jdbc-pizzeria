@@ -22,7 +22,7 @@ public class DatabaseConf {
 
     public static final String CREATE_TABLE_PRODUCTOS = "CREATE TABLE IF NOT EXISTS productos (\r\n" +
             "    id INT PRIMARY KEY AUTO_INCREMENT,\r\n" +
-            "    nombre VARCHAR(255) NOT NULL,\r\n" +
+            "    nombre VARCHAR(255) NOT NULL UNIQUE,\r\n" +
             "    precio DOUBLE NOT NULL,\r\n" +
             "    tipo VARCHAR(255) NOT NULL,\r\n" +
             "    size VARCHAR(255) DEFAULT NULL\r\n" +
@@ -33,7 +33,7 @@ public class DatabaseConf {
             "    producto_id INT,\r\n" +
             "    ingrediente_id INT,\r\n" +
             "    PRIMARY KEY (producto_id, ingrediente_id),\r\n" + // Clave primaria compuesta
-            "    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,\r\n" +
+            "    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE ON UPDATE CASCADE,\r\n" +
             "    FOREIGN KEY (ingrediente_id) REFERENCES ingredientes(id) ON DELETE CASCADE ON UPDATE CASCADE\r\n" +
             ");\r\n";
 
@@ -52,7 +52,7 @@ public class DatabaseConf {
             "    ingrediente_id INT,\r\n" +
             "    alergeno_id INT,\r\n" +
             "    PRIMARY KEY (ingrediente_id, alergeno_id),\r\n" +
-            "    FOREIGN KEY (ingrediente_id) REFERENCES ingredientes(id) ON DELETE CASCADE,\r\n" +
+            "    FOREIGN KEY (ingrediente_id) REFERENCES ingredientes(id) ON DELETE CASCADE ON UPDATE CASCADE,\r\n" +
             "    FOREIGN KEY (alergeno_id) REFERENCES alergenos(id) ON DELETE CASCADE ON UPDATE CASCADE\r\n" +
             ");\r\n";
 

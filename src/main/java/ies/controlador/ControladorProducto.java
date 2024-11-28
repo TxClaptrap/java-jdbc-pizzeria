@@ -23,6 +23,14 @@ ProductoDao productoDao = new JdbcProductoDao();
         productoDao.insertProducto(producto);
     }
 
+    public void actualizarProducto(int productoId) throws SQLException {
+        productoDao.updateProducto(productoId);
+    }
+
+    public Producto enontrarProductoById(int idProducto) throws SQLException {
+        return productoDao.findProductoById(idProducto);
+    }
+
     /* 
     GestorFicheros gestorFicheros;
 
