@@ -22,7 +22,7 @@ public class JdbcProductoDao implements ProductoDao {
     @Override
     public void insertProducto(Producto producto) throws SQLException {
         final String INSERT_PRODUCTO = "INSERT INTO  productos (nombre, precio, tipo, size) VALUES(?, ?, ?, ?)";
-        //Comprobar si ya está en la base
+        // Comprobar si ya está en la base
         if (existsByName("productos", "nombre", producto.getNombre())) {
             System.out.println("El Producto ya existe: " + producto.getNombre());
             return; // Salir si existe
@@ -54,14 +54,13 @@ public class JdbcProductoDao implements ProductoDao {
     }
 
     @Override
-    public void updateProducto(int productoId) throws SQLException {
+    public void updateProducto(Producto producto) throws SQLException {
         final String UPDATE_PRODUCTO = "UPDATE productos SET nombre = ?, precio = ?, tipo = ?, size = ? WHERE id = ?";
-        Producto producto = findProductoById(productoId);
 
         try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
                 DatabaseConf.PASSWORD)) {
             List<Ingrediente> ingredientes = new ArrayList<>();
-            // Actualizar las propiedades del producto
+            // Actualiza
             try (PreparedStatement pstmtProducto = conexion.prepareStatement(UPDATE_PRODUCTO)) {
 
                 pstmtProducto.setString(1, producto.getNombre());
@@ -79,8 +78,6 @@ public class JdbcProductoDao implements ProductoDao {
                     return;
                 }
             }
-
-            // Actualizar las relaciones con ingredientes
             gestionarIngredientesYRelaciones(producto, ingredientes);
         }
     }
@@ -111,7 +108,8 @@ public class JdbcProductoDao implements ProductoDao {
         return ingredientes;
     }
 
-    private void gestionarIngredientesYRelaciones(Producto producto, List<Ingrediente> ingredientes) throws SQLException {
+    private void gestionarIngredientesYRelaciones(Producto producto, List<Ingrediente> ingredientes)
+            throws SQLException {
         for (Ingrediente ingrediente : ingredientes) {
             insertIngrediente(ingrediente);
             insertRelacionProductoIngrediente(producto.getId(), ingrediente.getId());
@@ -121,10 +119,9 @@ public class JdbcProductoDao implements ProductoDao {
             }
         }
     }
-    
 
     @Override
-    public void delete(Producto producto) throws SQLException {
+    public void deleteProducto(Producto producto) throws SQLException {
         final String DELETE_PRODUCTO = "DELETE FROM productos WHERE id = ?";
         try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
                 DatabaseConf.PASSWORD);
@@ -170,21 +167,33 @@ public class JdbcProductoDao implements ProductoDao {
 
             try (ResultSet rs = pstmtProducto.executeQuery()) {
                 if (rs.next()) {
+                    int id = rs.getInt("id");
                     String nombre = rs.getString("nombre");
                     double precio = rs.getDouble("precio");
                     String tipo = rs.getString("tipo");
                     String size = rs.getString("size");
 
-                    switch (tipo) {
-                        case "Pizza":
-                            return new Pizza(nombre, precio, SIZE.valueOf(size), null); // Asume que no hay ingredientes
-                        case "Pasta":
-                            return new Pasta(nombre, precio, null);
-                        case "Bebida":
-                            return new Bebida(nombre, precio, size != null ? SIZE.valueOf(size) : null);
-                        default:
-                            System.out.println("El tipo de producto no es reconocido.");
-                            return null;
+                    if ("Pizza".equals(tipo)) {
+                        /*
+                         * SIZE tamano;
+                         * if (size != null) {
+                         * tamano = SIZE.valueOf(size);
+                         * } else {
+                         * tamano = null;
+                         * }
+                         */
+                        SIZE tamano = (size != null) ? SIZE.valueOf(size) : null;
+                        List<Ingrediente> ingredientes = findIngredientesByProducto(id);
+                        return new Pizza(id, nombre, precio, tamano, ingredientes);
+                    } else if ("Pasta".equals(tipo)) {
+                        List<Ingrediente> ingredientes = findIngredientesByProducto(id);
+                        return new Pasta(id, nombre, precio, ingredientes);
+                    } else if ("Bebida".equals(tipo)) {
+                        SIZE tamano = (size != null) ? SIZE.valueOf(size) : null;
+                        return new Bebida(id, nombre, precio, tamano);
+                    } else {
+                        System.out.println("Tipo de producto desconocido: " + tipo);
+                        return null;
                     }
                 } else {
                     System.out.println("No se encontró un producto con ese ID.");
@@ -196,20 +205,102 @@ public class JdbcProductoDao implements ProductoDao {
 
     @Override
     public List<Producto> findAllProductos() throws SQLException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findAllProductos'");
+        final String SELECT_ALL_PRODUCTOS = "SELECT * FROM productos";
+        List<Producto> productos = new ArrayList<>();
+
+        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
+                DatabaseConf.PASSWORD);
+                PreparedStatement pstmt = conexion.prepareStatement(SELECT_ALL_PRODUCTOS);
+                ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String nombre = rs.getString("nombre");
+                double precio = rs.getDouble("precio");
+                String tipo = rs.getString("tipo");
+                String size = rs.getString("size");
+
+                Producto producto;
+                if ("Pizza".equals(tipo)) {
+                    /*
+                     * SIZE tamano;
+                     * if (size != null) {
+                     * tamano = SIZE.valueOf(size);
+                     * } else {
+                     * tamano = null;
+                     * }
+                     */
+                    SIZE tamano = (size != null) ? SIZE.valueOf(size) : null;
+                    List<Ingrediente> ingredientes = findIngredientesByProducto(id);
+                    producto = new Pizza(id, nombre, precio, tamano, ingredientes);
+                } else if ("Pasta".equals(tipo)) {
+                    List<Ingrediente> ingredientes = findIngredientesByProducto(id);
+                    producto = new Pasta(id, nombre, precio, ingredientes);
+                } else if ("Bebida".equals(tipo)) {
+                    SIZE tamano = (size != null) ? SIZE.valueOf(size) : null;
+                    producto = new Bebida(id, nombre, precio, tamano);
+                } else {
+                    System.out.println("Tipo de producto desconocido: " + tipo);
+                    return null;
+                }
+                productos.add(producto);
+            }
+        }
+        return productos;
     }
 
     @Override
     public List<Ingrediente> findIngredientesByProducto(int idProducto) throws SQLException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findIngredientesByProducto'");
+        final String SELECT_INGREDIENTES_BY_PRODUCTO = "SELECT ingredientes.id, ingredientes.nombre " +
+                "FROM ingredientes " +
+                "INNER JOIN producto_ingrediente ON ingredientes.id = producto_ingrediente.ingrediente_id " +
+                "WHERE producto_ingrediente.producto_id = ?";
+
+        List<Ingrediente> ingredientes = new ArrayList<>();
+
+        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
+                DatabaseConf.PASSWORD);
+                PreparedStatement pstmt = conexion.prepareStatement(SELECT_INGREDIENTES_BY_PRODUCTO)) {
+
+            pstmt.setInt(1, idProducto);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    int id = rs.getInt("ingredientes.id");
+                    String nombre = rs.getString("nombre");
+
+                    List<String> alergenos = findAlergenosByIngrediente(id);
+                    Ingrediente ingrediente = new Ingrediente(id, nombre, alergenos);
+                    ingredientes.add(ingrediente);
+                }
+            }
+        }
+        return ingredientes;
     }
 
     @Override
     public List<String> findAlergenosByIngrediente(int idIngrediente) throws SQLException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findAlergenoByIngrediente'");
+        final String SELECT_ALERGENOS_BY_INGREDIENTE = "SELECT alergenos.nombre " +
+                "FROM alergenos " +
+                "INNER JOIN ingrediente_alergeno ON alergenos.id = ingrediente_alergeno.alergeno_id " +
+                "WHERE ingrediente_alergeno.ingrediente_id = ?";
+
+        List<String> alergenos = new ArrayList<>();
+
+        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
+                DatabaseConf.PASSWORD);
+                PreparedStatement pstmt = conexion.prepareStatement(SELECT_ALERGENOS_BY_INGREDIENTE)) {
+
+            pstmt.setInt(1, idIngrediente);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String nombre = rs.getString("nombre");
+                    alergenos.add(nombre);
+                }
+            }
+        }
+        return alergenos;
     }
 
     public void insertIngrediente(Ingrediente ingrediente) throws SQLException {
@@ -332,7 +423,7 @@ public class JdbcProductoDao implements ProductoDao {
         return false;
     }
 
-    private int findIdByName(String tabla, String columna, String nombre) throws SQLException {
+    public static int findIdByName(String tabla, String columna, String nombre) throws SQLException {
         final String SELECT_ID = "SELECT id FROM " + tabla + " WHERE " + columna + " = ?";
         try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
                 DatabaseConf.PASSWORD);

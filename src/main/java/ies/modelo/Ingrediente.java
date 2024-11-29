@@ -28,6 +28,12 @@ public class Ingrediente {
         this.nombre = nombre;
         this.alergenos = alergenos;
     }
+
+    public Ingrediente(int id, String nombre, List<String> alergenos) {
+        this.id = id;
+        this.nombre = nombre;
+        this.alergenos = alergenos;
+    }
     
     public int getId() {
         return id;

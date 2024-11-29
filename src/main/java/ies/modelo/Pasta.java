@@ -18,13 +18,14 @@ public class Pasta  extends Producto {
         this.listaIngredientes = listaIngredientes;
     }
 
-
+    public Pasta(int id, String nombre, double precio, List<Ingrediente> listaIngredientes) {
+        super(id, nombre, precio);
+        this.listaIngredientes = listaIngredientes;
+    }
     
     public Pasta() {
         super(null, 0);
     }
-
-
 
     public List<Ingrediente> getListaIngredientes() {
         return listaIngredientes;
@@ -34,5 +35,11 @@ public class Pasta  extends Producto {
         this.listaIngredientes = listaIngredientes;
     }
 
+    @Override
+    public String toString() {
+        return this.getId() + " - " + this.getNombre() + ": " + this.getPrecio() + "$" + " [listaIngredientes=" + listaIngredientes + "]";
+    }
+
+    
     
 }

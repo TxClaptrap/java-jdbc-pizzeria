@@ -8,6 +8,11 @@ public class Bebida extends Producto{
         this.tamano = tamano;
     }
 
+    public Bebida(int id, String nombre, double precio, SIZE tamano) {
+        super(id, nombre, precio);
+        this.tamano = tamano;
+    }
+
     public SIZE getTamano() {
         return tamano;
     }
@@ -15,5 +20,12 @@ public class Bebida extends Producto{
     public void setTamano(SIZE tamano) {
         this.tamano = tamano;
     }
+
+    @Override
+    public String toString() {
+        return this.getId() + " - " + this.getNombre() + ": " + this.getPrecio() + "$" + " Bebida [tamano=" + tamano + "]";
+    }
+
+    
     
 }

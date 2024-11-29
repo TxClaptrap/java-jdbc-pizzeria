@@ -12,21 +12,25 @@ public class ControladorCliente {
 
     ClienteDao clienteDao = new JdbcClienteDao();
 
-    public Cliente encontrarPorEmail(String email) throws SQLException {
-        return clienteDao.findByEmail(email);
-    }
-
     public void registrarCliente(Cliente cliente) throws SQLException {
-        if (encontrarPorEmail(cliente.getEmail()) == null) {
-            clienteDao.insert(cliente);
+        if (clienteDao.findClienteByEmail(cliente.getEmail()) == null) {
+            clienteDao.insertCliente(cliente);
         }
         else {
             throw new IllegalArgumentException("Ya hay un usuario registrado con ese email.");
         }
     }
 
+    public void actualizarCliente(Cliente cliente) throws SQLException {
+        clienteDao.updateCliente(cliente);
+    }
+
+    public void borrarCliente(Cliente cliente) throws SQLException {
+        clienteDao.deleteCliente(cliente);
+    }
+
     public List<Cliente> encontrarTodos() throws SQLException {
-        return clienteDao.findAll();
+        return clienteDao.findAllClientes();
     }
 
     /* Antigua Pizzería 

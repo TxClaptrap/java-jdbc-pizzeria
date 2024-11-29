@@ -9,8 +9,8 @@ import ies.modelo.Producto;
 public interface ProductoDao {
 
     public void insertProducto(Producto producto) throws SQLException;
-    public void updateProducto(int productoId) throws SQLException;
-    public void delete(Producto producto) throws SQLException;
+    public void updateProducto(Producto producto) throws SQLException;
+    public void deleteProducto(Producto producto) throws SQLException;
     public Producto findProductoById(int idProducto) throws SQLException;
     public List <Producto> findAllProductos() throws SQLException;
     public List <Ingrediente> findIngredientesByProducto(int idProducto) throws SQLException;

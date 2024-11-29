@@ -40,16 +40,16 @@ public class Main {
         Producto aberrante = new Pizza("Hawaiana", 8, SIZE.MEDIANO , List.of(baseTrigo, tomatico, echamas, chicha, gazpacho));
         Producto bolognese = new Pasta("Boloñesa celiaca", 10, List.of(echamas, baseSosa, tomatico, chicha2));
         Producto cola = new Bebida("CocaCola", 2, SIZE.PEQUENO);
-
-
-
         Producto carbonara = new Pizza("Carbonara", 10, SIZE.GRANDE, List.of(echamas, baseTrigo, chicha));
-        
-
 
         try {
             controladorCliente.registrarCliente(cliente);
             controladorCliente.registrarCliente(cliente2);
+            controladorCliente.borrarCliente(cliente2);
+
+            cliente.setDni("22222222X");
+
+            controladorCliente.actualizarCliente(cliente);
             
             List<Cliente> clientes = controladorCliente.encontrarTodos();
             for (Cliente c : clientes) {
@@ -66,18 +66,46 @@ public class Main {
             controladorProducto.registrarProducto(carbonara);
 
 
-            controladorProducto.enontrarProductoById(carbonara.getId());
+            System.out.println(controladorProducto.enontrarProductoById(carbonara.getId()) + "****************************");
             
+            System.out.println(carbonara);
             carbonara.setNombre("Pizza Carbonara");
 
-            controladorProducto.actualizarProducto(carbonara.getId());
+            System.out.println(carbonara);
+
+            controladorProducto.actualizarProducto(carbonara);
+
+            System.out.println(carbonara);
+
             controladorProducto.registrarProducto(aberrante);
+            System.out.println("****************" + controladorProducto.enontrarProductoById(aberrante.getId()));
             controladorProducto.registrarProducto(bolognese);
+            ((Pizza) aberrante).setListaIngredientes(List.of(echamas, gazpacho, tomatico, chicha2));
+            controladorProducto.actualizarProducto(aberrante);
+            System.out.println("****************" + controladorProducto.enontrarProductoById(aberrante.getId()));
             controladorProducto.registrarProducto(cola);
         } catch (SQLException e) {
             System.out.println("Te peinas");
             e.printStackTrace();
         }
+
+        try {
+            controladorProducto.borrarProducto(carbonara);
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        try {
+            for (Producto p : controladorProducto.encontrarAllProductos()) {
+                System.out.println(p);
+            }
+            
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
 
         /* Antiguo Main
 

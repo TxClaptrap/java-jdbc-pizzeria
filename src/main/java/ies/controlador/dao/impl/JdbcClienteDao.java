@@ -23,7 +23,7 @@ public class JdbcClienteDao implements ClienteDao {
     final String FIND_ALL = "SELECT clientes.id, clientes.dni, clientes.nombre, clientes.direccion, clientes.telefono, clientes.email, clientes.password FROM clientes";
 
     @Override
-    public void insert(Cliente cliente) throws SQLException {
+    public void insertCliente(Cliente cliente) throws SQLException {
         try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
                 DatabaseConf.PASSWORD);
                 PreparedStatement pstmtCliente = conexion.prepareStatement(INSERT_CLIENTE,
@@ -49,7 +49,7 @@ public class JdbcClienteDao implements ClienteDao {
     }
 
     @Override
-    public void update(Cliente cliente) throws SQLException {
+    public void updateCliente(Cliente cliente) throws SQLException {
         try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER, DatabaseConf.PASSWORD);
              PreparedStatement pstmtCliente = conexion.prepareStatement(UPDATE_CLIENTE)) {
             pstmtCliente.setString(1, cliente.getDni());
@@ -70,7 +70,7 @@ public class JdbcClienteDao implements ClienteDao {
     }
 
     @Override
-    public void delete(Cliente cliente) throws SQLException {
+    public void deleteCliente(Cliente cliente) throws SQLException {
         try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER, DatabaseConf.PASSWORD);
              PreparedStatement pstmtCliente = conexion.prepareStatement(DELETE_CLIENTE)) {
             pstmtCliente.setInt(1, cliente.getId());
@@ -85,7 +85,7 @@ public class JdbcClienteDao implements ClienteDao {
     }
 
     @Override
-    public Cliente findById(int id) throws SQLException {
+    public Cliente findClienteById(int id) throws SQLException {
         try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER, DatabaseConf.PASSWORD);
              PreparedStatement pstmtCliente = conexion.prepareStatement(FIND_BY_ID)) {
             pstmtCliente.setInt(1, id);
@@ -105,7 +105,7 @@ public class JdbcClienteDao implements ClienteDao {
     
 
     @Override
-    public Cliente findByEmail(String email) throws SQLException {
+    public Cliente findClienteByEmail(String email) throws SQLException {
         try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
                 DatabaseConf.PASSWORD);
                 PreparedStatement pstmtCliente = conexion.prepareStatement(FIND_EMAIL)) {
@@ -128,7 +128,7 @@ public class JdbcClienteDao implements ClienteDao {
     }
 
     @Override
-    public List<Cliente> findAll() throws SQLException {
+    public List<Cliente> findAllClientes() throws SQLException {
         try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
                 DatabaseConf.PASSWORD);
                 PreparedStatement pstmtCliente = conexion.prepareStatement(FIND_ALL)) {

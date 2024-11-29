@@ -1,18 +1,10 @@
 package ies.controlador;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-
-import ies.controlador.dao.ClienteDao;
 import ies.controlador.dao.ProductoDao;
-import ies.controlador.dao.impl.JdbcClienteDao;
 import ies.controlador.dao.impl.JdbcProductoDao;
-import ies.modelo.Ingrediente;
 import ies.modelo.Producto;
 
 public class ControladorProducto {
@@ -23,12 +15,20 @@ ProductoDao productoDao = new JdbcProductoDao();
         productoDao.insertProducto(producto);
     }
 
-    public void actualizarProducto(int productoId) throws SQLException {
-        productoDao.updateProducto(productoId);
+    public void actualizarProducto(Producto producto) throws SQLException {
+        productoDao.updateProducto(producto);
+    }
+
+    public void borrarProducto(Producto producto) throws SQLException {
+        productoDao.deleteProducto(producto);
     }
 
     public Producto enontrarProductoById(int idProducto) throws SQLException {
         return productoDao.findProductoById(idProducto);
+    }
+
+    public List<Producto> encontrarAllProductos() throws SQLException {
+        return productoDao.findAllProductos();
     }
 
     /* 
