@@ -42,6 +42,9 @@ public class Pedido {
 
 
     public double getPrecioTotal() {
+        for (LineaPedido lineaPedido : listaLineaPedidos) {
+            precioTotal += lineaPedido.getPrecio();
+        }
         return precioTotal;
     }
 
@@ -73,9 +76,13 @@ public class Pedido {
         this.cliente = cliente;
     }
 
-    
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    
+    public void setFecha(LocalDate fecha) {
+        this.fecha = fecha;
+    }
 
 }
 

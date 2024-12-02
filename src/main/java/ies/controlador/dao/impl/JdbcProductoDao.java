@@ -48,8 +48,20 @@ public class JdbcProductoDao implements ProductoDao {
                         producto.setId(generatedKeys.getInt(1));
                     }
                 }
-                gestionarIngredientesYRelaciones(producto, ingredientes);
+                gestionarIngredientesYRelaciones(conexion, producto, ingredientes);
+
+                if (conexion != null) {
+                    try {
+                        conexion.rollback();
+                        conexion.setAutoCommit(true);
+                        conexion.close();
+                        System.out.println("Rollback hecho.");
+                    } catch (SQLException closeEx) {
+                        System.err.println("Error cerrando la conexión: " + closeEx.getMessage());
+                    }
+                }
             }
+
         }
     }
 
@@ -78,7 +90,7 @@ public class JdbcProductoDao implements ProductoDao {
                     return;
                 }
             }
-            gestionarIngredientesYRelaciones(producto, ingredientes);
+            gestionarIngredientesYRelaciones(conexion, producto, ingredientes);
         }
     }
 
@@ -108,14 +120,16 @@ public class JdbcProductoDao implements ProductoDao {
         return ingredientes;
     }
 
-    private void gestionarIngredientesYRelaciones(Producto producto, List<Ingrediente> ingredientes)
+    private void gestionarIngredientesYRelaciones(Connection conexion, Producto producto,
+            List<Ingrediente> ingredientes)
             throws SQLException {
         for (Ingrediente ingrediente : ingredientes) {
-            insertIngrediente(ingrediente);
-            insertRelacionProductoIngrediente(producto.getId(), ingrediente.getId());
+            insertIngrediente(conexion, ingrediente);
+            insertRelacionProductoIngrediente(conexion, producto.getId(), ingrediente.getId());
             for (String alergeno : ingrediente.getAlergenos()) {
-                insertAlergeno(alergeno);
-                insertRelacionIngredienteAlergeno(ingrediente.getId(), findIdByName("alergenos", "nombre", alergeno));
+                insertAlergeno(conexion, alergeno);
+                insertRelacionIngredienteAlergeno(conexion, ingrediente.getId(),
+                        findIdByName("alergenos", "nombre", alergeno));
             }
         }
     }
@@ -303,22 +317,19 @@ public class JdbcProductoDao implements ProductoDao {
         return alergenos;
     }
 
-    public void insertIngrediente(Ingrediente ingrediente) throws SQLException {
-        final String INSERT_INGREDIENTE = "INSERT INTO  ingredientes (nombre) VALUES(?)";
+    public void insertIngrediente(Connection conexion, Ingrediente ingrediente) throws SQLException {
+        final String INSERT_INGREDIENTE = "INSERT INTO ingredientes (nombre) VALUES(?)";
         // Comprobación si está el ingrediente en la tabla
         if (existsByName("ingredientes", "nombre", ingrediente.getNombre())) {
             System.out.println("El ingrediente ya existe: " + ingrediente.getNombre());
             return; // Salir si ya existe
         }
-
+    
         // Insertarlo
-        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
-                DatabaseConf.PASSWORD);
-                PreparedStatement pstmtIngrediente = conexion.prepareStatement(INSERT_INGREDIENTE,
-                        Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement pstmtIngrediente = conexion.prepareStatement(INSERT_INGREDIENTE, Statement.RETURN_GENERATED_KEYS)) {
             pstmtIngrediente.setString(1, ingrediente.getNombre());
             pstmtIngrediente.executeUpdate();
-
+    
             System.out.println("Ingrediente insertado correctamente.");
             try (ResultSet generatedKeys = pstmtIngrediente.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -327,8 +338,9 @@ public class JdbcProductoDao implements ProductoDao {
             }
         }
     }
+    
 
-    public void insertAlergeno(String alergeno) throws SQLException {
+    public void insertAlergeno(Connection conexion, String alergeno) throws SQLException {
         final String INSERT_ALERGENO = "INSERT INTO  alergenos (nombre) VALUES(?)";
         // Comprobar si está ya en la tabla
         if (existsByName("alergenos", "nombre", alergeno)) {
@@ -337,33 +349,29 @@ public class JdbcProductoDao implements ProductoDao {
         }
 
         // Insertar alérgeno
-        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
-                DatabaseConf.PASSWORD);
-                PreparedStatement pstmtAlergeno = conexion.prepareStatement(INSERT_ALERGENO,
-                        Statement.RETURN_GENERATED_KEYS)) {
-            pstmtAlergeno.setString(1, alergeno);
-            pstmtAlergeno.executeUpdate();
+        PreparedStatement pstmtAlergeno = conexion.prepareStatement(INSERT_ALERGENO,
+                Statement.RETURN_GENERATED_KEYS);
+        pstmtAlergeno.setString(1, alergeno);
+        pstmtAlergeno.executeUpdate();
 
-            System.out.println("Alérgeno insertado correctamente.");
-        }
+        System.out.println("Alérgeno insertado correctamente.");
+
     }
 
-    public void insertRelacionProductoIngrediente(int productoId, int ingredienteId) throws SQLException {
+    public void insertRelacionProductoIngrediente(Connection conexion, int productoId, int ingredienteId)
+            throws SQLException {
         final String COMPROBAR_RELACION = "SELECT COUNT(*) FROM producto_ingrediente WHERE producto_id = ? AND ingrediente_id = ?";
         final String INSERT_RELACION = "INSERT INTO producto_ingrediente (producto_id, ingrediente_id) VALUES (?, ?)";
 
-        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
-                DatabaseConf.PASSWORD)) {
-            // Comprobar si la relación ya existe
-            try (PreparedStatement pstmComprobar = conexion.prepareStatement(COMPROBAR_RELACION)) {
-                pstmComprobar.setInt(1, productoId);
-                pstmComprobar.setInt(2, ingredienteId);
-                try (ResultSet rs = pstmComprobar.executeQuery()) {
-                    if (rs.next() && rs.getInt(1) > 0) {
-                        System.out.println("La relación ya existe: producto_id = " + productoId
-                                + ", ingrediente_id = " + ingredienteId);
-                        return; // Salir si ya existe
-                    }
+        // Comprobar si la relación ya existe
+        try (PreparedStatement pstmComprobar = conexion.prepareStatement(COMPROBAR_RELACION)) {
+            pstmComprobar.setInt(1, productoId);
+            pstmComprobar.setInt(2, ingredienteId);
+            try (ResultSet rs = pstmComprobar.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    System.out.println("La relación ya existe: producto_id = " + productoId
+                            + ", ingrediente_id = " + ingredienteId);
+                    return; // Salir si ya existe
                 }
             }
 
@@ -378,33 +386,31 @@ public class JdbcProductoDao implements ProductoDao {
         }
     }
 
-    public void insertRelacionIngredienteAlergeno(int ingredienteId, int alergenoId) throws SQLException {
+    public void insertRelacionIngredienteAlergeno(Connection conexion, int ingredienteId, int alergenoId)
+            throws SQLException {
         final String COMPROBAR_RELACION = "SELECT COUNT(*) FROM ingrediente_alergeno WHERE ingrediente_id = ? AND alergeno_id = ?";
         final String INSERT_RELACION = "INSERT INTO ingrediente_alergeno (ingrediente_id, alergeno_id) VALUES (?, ?)";
 
-        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
-                DatabaseConf.PASSWORD)) {
-            // Comprobar si la relación ya existe
-            try (PreparedStatement pstmComprobar = conexion.prepareStatement(COMPROBAR_RELACION)) {
-                pstmComprobar.setInt(1, ingredienteId);
-                pstmComprobar.setInt(2, alergenoId);
-                try (ResultSet rs = pstmComprobar.executeQuery()) {
-                    if (rs.next() && rs.getInt(1) > 0) {
-                        System.out.println("La relación ya existe: ingrediente_id = " + ingredienteId
-                                + ", alergeno_id = " + alergenoId);
-                        return; // Salir si la ya existe
-                    }
+        // Comprobar si la relación ya existe
+        try (PreparedStatement pstmComprobar = conexion.prepareStatement(COMPROBAR_RELACION)) {
+            pstmComprobar.setInt(1, ingredienteId);
+            pstmComprobar.setInt(2, alergenoId);
+            try (ResultSet rs = pstmComprobar.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    System.out.println("La relación ya existe: ingrediente_id = " + ingredienteId
+                            + ", alergeno_id = " + alergenoId);
+                    return; // Salir si la ya existe
                 }
             }
+        }
 
-            // Insertar la nueva relación
-            try (PreparedStatement pstmtRelacion = conexion.prepareStatement(INSERT_RELACION)) {
-                pstmtRelacion.setInt(1, ingredienteId);
-                pstmtRelacion.setInt(2, alergenoId);
-                pstmtRelacion.executeUpdate();
-                System.out.println("Relación insertada correctamente: ingrediente_id = " + ingredienteId
-                        + ", alergeno_id = " + alergenoId);
-            }
+        // Insertar la nueva relación
+        try (PreparedStatement pstmtRelacion = conexion.prepareStatement(INSERT_RELACION)) {
+            pstmtRelacion.setInt(1, ingredienteId);
+            pstmtRelacion.setInt(2, alergenoId);
+            pstmtRelacion.executeUpdate();
+            System.out.println("Relación insertada correctamente: ingrediente_id = " + ingredienteId
+                    + ", alergeno_id = " + alergenoId);
         }
     }
 

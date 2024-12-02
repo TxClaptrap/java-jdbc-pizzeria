@@ -6,16 +6,16 @@ public class LineaPedido {
     
     private int id;
     private int cantidad;
-
     private Pedido pedido;
     private Producto producto;
+    private Double precio;
 
     public LineaPedido(int id, int cantidad, Pedido pedido, Producto producto) {
         this.id = id;
         this.cantidad = cantidad;
         this.pedido = pedido;
         this.producto = producto;
-
+        this.precio = producto.getPrecio() * cantidad;
     }
 
     public LineaPedido(List<LineaPedido> listaLineaPedidos) {
@@ -54,10 +54,8 @@ public class LineaPedido {
         this.producto = producto;
     }
 
-    public void precioPorLinea() {
-        pedido.setPrecioTotal(pedido.getPrecioTotal() + producto.getPrecio() * cantidad);
+    public Double getPrecio() {
+        return precio;
     }
-
-
 
 }
