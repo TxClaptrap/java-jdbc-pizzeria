@@ -18,6 +18,14 @@ public class LineaPedido {
         this.precio = producto.getPrecio() * cantidad;
     }
 
+    public LineaPedido(int id, int cantidad, Pedido pedido, Producto producto, Double precio) {
+        this.id = id;
+        this.cantidad = cantidad;
+        this.pedido = pedido;
+        this.producto = producto;
+        this.precio = precio;
+    }
+
     public LineaPedido(List<LineaPedido> listaLineaPedidos) {
         
     }

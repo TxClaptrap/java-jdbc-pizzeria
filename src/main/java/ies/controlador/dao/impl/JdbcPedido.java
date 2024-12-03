@@ -16,12 +16,13 @@ import ies.modelo.Cliente;
 import ies.modelo.EstadoPedido;
 import ies.modelo.LineaPedido;
 import ies.modelo.Pedido;
+import ies.modelo.Producto;
 import ies.utils.DatabaseConf;
 
 public class JdbcPedido implements PedidoDao {
 
     ClienteDao clienteDao = new JdbcClienteDao();
-    
+    ProductoDao productoDao = new JdbcProductoDao();
 
     @Override
     public void insertPedido(Pedido pedido) throws SQLException {
@@ -56,10 +57,12 @@ public class JdbcPedido implements PedidoDao {
     @Override
     public List<Pedido> findPedidosByEstado(EstadoPedido estado) throws SQLException {
         List<Pedido> pedidos = new ArrayList<>();
-        String query = "SELECT pedidos.id, pedidos.fecha, pedidos.precio_total, pedidos.cliente_id " + "FROM pedidos " + "WHERE pedidos.estado = ?";
+        String FIND_BY_ESTADO = "SELECT pedidos.id, pedidos.fecha, pedidos.precio_total, pedidos.cliente_id "
+                + "FROM pedidos " + "WHERE pedidos.estado = ?";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER, DatabaseConf.PASSWORD);
-                PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
+                DatabaseConf.PASSWORD);
+                PreparedStatement stmt = conexion.prepareStatement(FIND_BY_ESTADO)) {
 
             stmt.setString(1, estado.name());
             ResultSet rs = stmt.executeQuery();
@@ -86,9 +89,42 @@ public class JdbcPedido implements PedidoDao {
     }
 
     @Override
-    public List<LineaPedido> findLineasPedidoByPedidoId(int PedidpId) throws SQLException {
+    public List<LineaPedido> findLineasPedidoByPedidoId(int pedidoId) throws SQLException {
+        List<LineaPedido> lineasPedido = new ArrayList<>();
+        String FIND_LINEA_BY_PEDIDO_ID = "SELECT lineas_pedido.id, lineas_pedido.cantidad, lineas_pedido.pedido_id, lineas_pedido.producto_id, productos.precio " +
+                "FROM lineas_pedido " +
+                "JOIN productos ON lineas_pedido.producto_id = pedidos.id " +
+                "WHERE lineas_pedido.pedido_id = ?";
+
+        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER, DatabaseConf.PASSWORD);
+                PreparedStatement stmt = conexion.prepareStatement(FIND_LINEA_BY_PEDIDO_ID)) {
+
+            stmt.setInt(1, pedidoId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                int cantidad = rs.getInt("cantidad");
+                int productoId = rs.getInt("producto_id");
+                double precio = rs.getDouble("precio");
+
+                // Recuperar el producto asociado usando ProductoDao
+                Producto producto = productoDao.findProductoById(productoId);
+
+                // Crear la línea de pedido
+                Pedido pedido = new Pedido(pedidoId, null); //TODO - Indicar cliente************************
+                LineaPedido linea = new LineaPedido(id, cantidad, pedido, producto, precio);
+
+                lineasPedido.add(linea);
+            }
+        }
+        return lineasPedido;
+    }
+
+    @Override
+    public void agregarLineaPedido(LineaPedido lineaPedido) throws SQLException {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findLineasPedidoByPedidoId'");
+        throw new UnsupportedOperationException("Unimplemented method 'agregarLineaPedido'");
     }
 
 }

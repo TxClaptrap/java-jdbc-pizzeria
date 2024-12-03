@@ -23,35 +23,39 @@ public class JdbcProductoDao implements ProductoDao {
     public void insertProducto(Producto producto) throws SQLException {
         final String INSERT_PRODUCTO = "INSERT INTO  productos (nombre, precio, tipo, size) VALUES(?, ?, ?, ?)";
         // Comprobar si ya está en la base
-        if (existsByName("productos", "nombre", producto.getNombre())) {
-            System.out.println("El Producto ya existe: " + producto.getNombre());
-            return; // Salir si existe
-        }
-        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER, DatabaseConf.PASSWORD);
-            PreparedStatement pstmtProducto = conexion.prepareStatement(INSERT_PRODUCTO, Statement.RETURN_GENERATED_KEYS)) {
 
-                conexion.setAutoCommit(false);
+        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
+                DatabaseConf.PASSWORD);
+                PreparedStatement pstmtProducto = conexion.prepareStatement(INSERT_PRODUCTO,
+                        Statement.RETURN_GENERATED_KEYS)) {
 
-                List<Ingrediente> ingredientes = new ArrayList<>();
-                // Insertar el Producto
-                pstmtProducto.setString(1, producto.getNombre());
-                pstmtProducto.setDouble(2, producto.getPrecio());
+            conexion.setAutoCommit(false);
 
-                ingredientes = configurarProducto(producto, pstmtProducto);
+            if (existsByName(conexion, "productos", "nombre", producto.getNombre())) {
+                System.out.println("El Producto ya existe: " + producto.getNombre());
+                return; // Salir si existe
+            }
 
-                pstmtProducto.executeUpdate();
+            List<Ingrediente> ingredientes = new ArrayList<>();
+            // Insertar el Producto
+            pstmtProducto.setString(1, producto.getNombre());
+            pstmtProducto.setDouble(2, producto.getPrecio());
 
-                System.out.println("Producto insertado correctamente.");
-                // Obtiene el ID generado por el AUTO_INCREMENT
-                try (ResultSet generatedKeys = pstmtProducto.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        producto.setId(generatedKeys.getInt(1));
-                    }
+            ingredientes = configurarProducto(producto, pstmtProducto);
+
+            pstmtProducto.executeUpdate();
+
+            System.out.println("Producto insertado correctamente.");
+            // Obtiene el ID generado por el AUTO_INCREMENT
+            try (ResultSet generatedKeys = pstmtProducto.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    producto.setId(generatedKeys.getInt(1));
                 }
-                gestionarIngredientesYRelaciones(conexion, producto, ingredientes);
+            }
+            gestionarIngredientesYRelaciones(conexion, producto, ingredientes);
 
-                conexion.commit();
-        } 
+            conexion.commit();
+        }
     }
 
     @Override
@@ -118,7 +122,7 @@ public class JdbcProductoDao implements ProductoDao {
             for (String alergeno : ingrediente.getAlergenos()) {
                 insertAlergeno(conexion, alergeno);
                 insertRelacionIngredienteAlergeno(conexion, ingrediente.getId(),
-                        findIdByName("alergenos", "nombre", alergeno));
+                        findIdByName(conexion, "alergenos", "nombre", alergeno));
             }
         }
     }
@@ -185,7 +189,7 @@ public class JdbcProductoDao implements ProductoDao {
                          * tamano = null;
                          * }
                          */
-                        SIZE tamano = (size != null) ? SIZE.valueOf(size) : null;
+                        SIZE tamano = (size != null) ? SIZE.valueOf(size) : null; //Funcional chachi pistachi
                         List<Ingrediente> ingredientes = findIngredientesByProducto(id);
                         return new Pizza(id, nombre, precio, tamano, ingredientes);
                     } else if ("Pasta".equals(tipo)) {
@@ -309,16 +313,17 @@ public class JdbcProductoDao implements ProductoDao {
     public void insertIngrediente(Connection conexion, Ingrediente ingrediente) throws SQLException {
         final String INSERT_INGREDIENTE = "INSERT INTO ingredientes (nombre) VALUES(?)";
         // Comprobación si está el ingrediente en la tabla
-        if (existsByName("ingredientes", "nombre", ingrediente.getNombre())) {
+        if (existsByName(conexion, "ingredientes", "nombre", ingrediente.getNombre())) {
             System.out.println("El ingrediente ya existe: " + ingrediente.getNombre());
             return; // Salir si ya existe
         }
-    
+
         // Insertarlo
-        try (PreparedStatement pstmtIngrediente = conexion.prepareStatement(INSERT_INGREDIENTE, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement pstmtIngrediente = conexion.prepareStatement(INSERT_INGREDIENTE,
+                Statement.RETURN_GENERATED_KEYS)) {
             pstmtIngrediente.setString(1, ingrediente.getNombre());
             pstmtIngrediente.executeUpdate();
-    
+
             System.out.println("Ingrediente insertado correctamente.");
             try (ResultSet generatedKeys = pstmtIngrediente.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -327,12 +332,11 @@ public class JdbcProductoDao implements ProductoDao {
             }
         }
     }
-    
 
     public void insertAlergeno(Connection conexion, String alergeno) throws SQLException {
         final String INSERT_ALERGENO = "INSERT INTO  alergenos (nombre) VALUES(?)";
         // Comprobar si está ya en la tabla
-        if (existsByName("alergenos", "nombre", alergeno)) {
+        if (existsByName(conexion, "alergenos", "nombre", alergeno)) {
             System.out.println("El alérgeno ya existe: " + alergeno);
             return; // Salir si existe
         }
@@ -403,44 +407,31 @@ public class JdbcProductoDao implements ProductoDao {
         }
     }
 
-    private boolean existsByName(String tabla, String columna, String nombre) throws SQLException {
+    private boolean existsByName(Connection conexion, String tabla, String columna, String nombre) throws SQLException {
         final String COUNT_DUPLICADOS = "SELECT COUNT(*) FROM " + tabla + " WHERE " + columna + " = ?";
-        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
-                DatabaseConf.PASSWORD);
-                PreparedStatement pstmtContar = conexion.prepareStatement(COUNT_DUPLICADOS)) {
-            pstmtContar.setString(1, nombre);
-            try (ResultSet rs = pstmtContar.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0; // Devuelve true si el conteo es mayor que 0
-                }
+
+        PreparedStatement pstmtContar = conexion.prepareStatement(COUNT_DUPLICADOS);
+        pstmtContar.setString(1, nombre);
+        try (ResultSet rs = pstmtContar.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1) > 0; // Devuelve true si el conteo es mayor que 0
             }
         }
+
         return false;
     }
 
-    public static int findIdByName(String tabla, String columna, String nombre) throws SQLException {
+    public static int findIdByName(Connection conexion, String tabla, String columna, String nombre)
+            throws SQLException {
         final String SELECT_ID = "SELECT id FROM " + tabla + " WHERE " + columna + " = ?";
-        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
-                DatabaseConf.PASSWORD);
-                PreparedStatement pstmt = conexion.prepareStatement(SELECT_ID)) {
-            pstmt.setString(1, nombre);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("id");
-                }
+        PreparedStatement pstmt = conexion.prepareStatement(SELECT_ID);
+        pstmt.setString(1, nombre);
+        try (ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("id");
             }
         }
         throw new SQLException("No se encontró un registro con el nombre: " + nombre);
     }
 
-    /*
-     * // Tiene sentido, no? TO DO: ver cómo lo aplico
-     * public void insertIngredienteAlergeno(String ingredienteNombre, String
-     * alergenoNombre) throws SQLException {
-     * int ingredienteId = findIdByName("ingredientes", "nombre",
-     * ingredienteNombre);
-     * int alergenoId = findIdByName("alergenos", "nombre", alergenoNombre);
-     * insertRelacionIngredienteAlergeno(ingredienteId, alergenoId);
-     * }
-     */
 }
