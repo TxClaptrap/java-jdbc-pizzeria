@@ -27,11 +27,11 @@ public class JdbcProductoDao implements ProductoDao {
             System.out.println("El Producto ya existe: " + producto.getNombre());
             return; // Salir si existe
         }
-        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
-                DatabaseConf.PASSWORD);
-                PreparedStatement pstmtProducto = conexion.prepareStatement(INSERT_PRODUCTO,
-                        Statement.RETURN_GENERATED_KEYS)) {
-            {
+        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER, DatabaseConf.PASSWORD);
+            PreparedStatement pstmtProducto = conexion.prepareStatement(INSERT_PRODUCTO, Statement.RETURN_GENERATED_KEYS)) {
+
+                conexion.setAutoCommit(false);
+
                 List<Ingrediente> ingredientes = new ArrayList<>();
                 // Insertar el Producto
                 pstmtProducto.setString(1, producto.getNombre());
@@ -50,8 +50,7 @@ public class JdbcProductoDao implements ProductoDao {
                 }
                 gestionarIngredientesYRelaciones(conexion, producto, ingredientes);
 
-            }
-
+                conexion.commit();
         } 
     }
 

@@ -85,7 +85,7 @@ public class Main {
             System.out.println("****************" + controladorProducto.enontrarProductoById(aberrante.getId()));
             controladorProducto.registrarProducto(cola);
         } catch (SQLException e) {
-            System.out.println("Te peinas");
+            System.out.println("Te peinas" );
             e.printStackTrace();
         }
 
