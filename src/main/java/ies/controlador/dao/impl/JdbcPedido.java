@@ -21,7 +21,7 @@ import ies.utils.DatabaseConf;
 public class JdbcPedido implements PedidoDao {
 
     ClienteDao clienteDao = new JdbcClienteDao();
-    ProductoDao 
+    
 
     @Override
     public void insertPedido(Pedido pedido) throws SQLException {

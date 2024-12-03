@@ -50,19 +50,9 @@ public class JdbcProductoDao implements ProductoDao {
                 }
                 gestionarIngredientesYRelaciones(conexion, producto, ingredientes);
 
-                if (conexion != null) {
-                    try {
-                        conexion.rollback();
-                        conexion.setAutoCommit(true);
-                        conexion.close();
-                        System.out.println("Rollback hecho.");
-                    } catch (SQLException closeEx) {
-                        System.err.println("Error cerrando la conexión: " + closeEx.getMessage());
-                    }
-                }
             }
 
-        }
+        } 
     }
 
     @Override
