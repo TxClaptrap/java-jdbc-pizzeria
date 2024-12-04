@@ -9,7 +9,7 @@ public class Pedido {
     private LocalDate fecha;
     private List<LineaPedido> listaLineaPedidos; 
     private double precioTotal;
-    private Pagable metodoPago;
+    private MetodoPago metodoPago;
     private EstadoPedido estado;
 
     private Cliente cliente;
@@ -30,7 +30,6 @@ public class Pedido {
     public void setEstado(EstadoPedido estado) {
         this.estado = estado;
     }
-
 
     public int getId() {
         return id;
@@ -60,11 +59,11 @@ public class Pedido {
         this.listaLineaPedidos = listaLineaPedidos;
     }
 
-    public Pagable getMetodoPago() {
+    public MetodoPago getMetodoPago() {
         return metodoPago;
     }
 
-    public void setMetodoPago(Pagable metodoPago) {
+    public void setMetodoPago(MetodoPago metodoPago) {
         this.metodoPago = metodoPago;
     }
 

@@ -12,9 +12,8 @@ public interface PedidoDao {
     public void updatePedido(Pedido pedido) throws SQLException;
     public void deletePedido(Pedido pedido) throws SQLException;
     public Pedido findPedidoById(int idPedido) throws SQLException;
-    public List<Pedido> findPedidoByClienteId(int ClienteId) throws SQLException;
+    public List<Pedido> findPedidosByClienteId(int ClienteId) throws SQLException;
     public List<Pedido> findPedidosByEstado(EstadoPedido estado) throws SQLException;
     public List<LineaPedido> findLineasPedidoByPedidoId(int PedidpId) throws SQLException;
-    public void agregarLineaPedido(LineaPedido lineaPedido) throws SQLException;
 
 }

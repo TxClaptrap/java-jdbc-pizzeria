@@ -56,25 +56,26 @@ public class DatabaseConf {
             "    FOREIGN KEY (alergeno_id) REFERENCES alergenos(id) ON DELETE CASCADE ON UPDATE CASCADE" +
             ");";
 
-    public static final String CREATE_TABLE_PEDIDOS = "CREATE TABLE IF NOT EXISTS pedidos (" +
+            public static final String CREATE_TABLE_PEDIDOS = "CREATE TABLE IF NOT EXISTS pedidos (" +
             "    id INT PRIMARY KEY AUTO_INCREMENT," +
             "    fecha DATE NOT NULL," +
             "    precio_total DOUBLE NOT NULL," +
             "    cliente_id INT NOT NULL," +
+            "    estado ENUM('PENDIENTE', 'FINALIZADO', 'ENTREGADO', 'CANCELADO') DEFAULT 'PENDIENTE'," +
+            "    pago ENUM('TARJETA', 'EFECTIVO') DEFAULT 'TARJETA'," +
             "    FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE ON UPDATE CASCADE" +
             ");";
-
+    
     public static final String CREATE_TABLE_LINEAS_PEDIDO = "CREATE TABLE IF NOT EXISTS lineasPedido (" +
             "    id INT PRIMARY KEY AUTO_INCREMENT," +
             "    cantidad INT NOT NULL," +
             "    precio DOUBLE NOT NULL," +
-            "    estado ENUM('PENDIENTE', 'FINALIZADO', 'ENTREGADO', 'CANCELADO') DEFAULT 'PENDIENTE'," +
-            "    pago ENUM('TARJETA', 'EFECTIVO') DEFAULT 'TARJETA'," +
             "    pedido_id INT NOT NULL," +
             "    producto_id INT NOT NULL," +
             "    FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE ON UPDATE CASCADE," +
             "    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE ON UPDATE CASCADE" +
             ");";
+    
 
     // DROP TABLE
     private static final String DROP_TABLE_PRODUCTO_INGREDIENTE = "DROP TABLE IF EXISTS producto_ingrediente";

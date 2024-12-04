@@ -23,27 +23,28 @@ public class JdbcProductoDao implements ProductoDao {
     public void insertProducto(Producto producto) throws SQLException {
         final String INSERT_PRODUCTO = "INSERT INTO productos (nombre, precio, tipo, size) VALUES(?, ?, ?, ?)";
         Connection conexion = null; // Declarar la conexión aquí
-    
+
         try {
             conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER, DatabaseConf.PASSWORD);
-            PreparedStatement pstmtProducto = conexion.prepareStatement(INSERT_PRODUCTO, Statement.RETURN_GENERATED_KEYS);
-    
+            PreparedStatement pstmtProducto = conexion.prepareStatement(INSERT_PRODUCTO,
+                    Statement.RETURN_GENERATED_KEYS);
+
             conexion.setAutoCommit(false);
-    
+
             if (existsByName(conexion, "productos", "nombre", producto.getNombre())) {
                 System.out.println("El Producto ya existe: " + producto.getNombre());
                 return; // Salir si existe
             }
-    
+
             List<Ingrediente> ingredientes = new ArrayList<>();
             // Insertar el Producto
             pstmtProducto.setString(1, producto.getNombre());
             pstmtProducto.setDouble(2, producto.getPrecio());
-    
+
             ingredientes = configurarProducto(producto, pstmtProducto);
-    
+
             pstmtProducto.executeUpdate();
-    
+
             System.out.println("Producto insertado correctamente.");
             // Obtiene el ID generado por el AUTO_INCREMENT
             try (ResultSet generatedKeys = pstmtProducto.getGeneratedKeys()) {
@@ -52,29 +53,27 @@ public class JdbcProductoDao implements ProductoDao {
                 }
             }
             gestionarIngredientesYRelaciones(conexion, producto, ingredientes);
-    
+
             conexion.commit();
         } catch (SQLException e) {
             if (conexion != null) {
                 try {
-                    conexion.rollback(); // Realizar el rollback
+                    conexion.rollback(); // TODO - Es necesario?
                 } catch (SQLException rollbackEx) {
-                    // Manejar la excepción del rollback
                     rollbackEx.printStackTrace();
                 }
             }
-            e.printStackTrace(); // Manejar la excepción original
+            e.printStackTrace();
         } finally {
             if (conexion != null) {
                 try {
-                    conexion.close(); // Cerrar la conexión
+                    conexion.close(); // Cerrar conexión
                 } catch (SQLException closeEx) {
-                    closeEx.printStackTrace(); // Manejar la excepción al cerrar
+                    closeEx.printStackTrace();
                 }
             }
         }
     }
-    
 
     @Override
     public void updateProducto(Producto producto) throws SQLException {
@@ -207,7 +206,7 @@ public class JdbcProductoDao implements ProductoDao {
                          * tamano = null;
                          * }
                          */
-                        SIZE tamano = (size != null) ? SIZE.valueOf(size) : null; //Funcional chachi pistachi
+                        SIZE tamano = (size != null) ? SIZE.valueOf(size) : null; // Funcional chachi pistachi
                         List<Ingrediente> ingredientes = findIngredientesByProducto(id);
                         return new Pizza(id, nombre, precio, tamano, ingredientes);
                     } else if ("Pasta".equals(tipo)) {
@@ -247,14 +246,6 @@ public class JdbcProductoDao implements ProductoDao {
 
                 Producto producto;
                 if ("Pizza".equals(tipo)) {
-                    /*
-                     * SIZE tamano;
-                     * if (size != null) {
-                     * tamano = SIZE.valueOf(size);
-                     * } else {
-                     * tamano = null;
-                     * }
-                     */
                     SIZE tamano = (size != null) ? SIZE.valueOf(size) : null;
                     List<Ingrediente> ingredientes = findIngredientesByProducto(id);
                     producto = new Pizza(id, nombre, precio, tamano, ingredientes);
@@ -371,7 +362,8 @@ public class JdbcProductoDao implements ProductoDao {
 
     public void insertRelacionProductoIngrediente(Connection conexion, int productoId, int ingredienteId)
             throws SQLException {
-        final String COMPROBAR_RELACION = "SELECT COUNT(*) FROM producto_ingrediente WHERE producto_id = ? AND ingrediente_id = ?";
+        final String COMPROBAR_RELACION = "SELECT COUNT(*) " + "FROM producto_ingrediente "
+                + "WHERE producto_id = ? AND ingrediente_id = ?";
         final String INSERT_RELACION = "INSERT INTO producto_ingrediente (producto_id, ingrediente_id) VALUES (?, ?)";
 
         // Comprobar si la relación ya existe
@@ -399,7 +391,8 @@ public class JdbcProductoDao implements ProductoDao {
 
     public void insertRelacionIngredienteAlergeno(Connection conexion, int ingredienteId, int alergenoId)
             throws SQLException {
-        final String COMPROBAR_RELACION = "SELECT COUNT(*) FROM ingrediente_alergeno WHERE ingrediente_id = ? AND alergeno_id = ?";
+        final String COMPROBAR_RELACION = "SELECT COUNT(*) FROM ingrediente_alergeno "
+                + "WHERE ingrediente_id = ? AND alergeno_id = ?";
         final String INSERT_RELACION = "INSERT INTO ingrediente_alergeno (ingrediente_id, alergeno_id) VALUES (?, ?)";
 
         // Comprobar si la relación ya existe
