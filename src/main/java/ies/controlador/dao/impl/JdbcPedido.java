@@ -112,7 +112,7 @@ public class JdbcPedido implements PedidoDao {
                 Producto producto = productoDao.findProductoById(productoId);
 
                 // Crear la línea de pedido
-                Pedido pedido = new Pedido(pedidoId, null); //TODO - Indicar cliente************************
+                Pedido pedido = new Pedido(pedidoId, null); //TODO - Indicar cliente************************   No hace falta que linea de pedido tenga un pedido como atributo
                 LineaPedido linea = new LineaPedido(id, cantidad, pedido, producto, precio);
 
                 lineasPedido.add(linea);
