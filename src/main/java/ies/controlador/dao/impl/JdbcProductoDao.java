@@ -21,30 +21,29 @@ public class JdbcProductoDao implements ProductoDao {
 
     @Override
     public void insertProducto(Producto producto) throws SQLException {
-        final String INSERT_PRODUCTO = "INSERT INTO  productos (nombre, precio, tipo, size) VALUES(?, ?, ?, ?)";
-        // Comprobar si ya está en la base
-
-        try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER,
-                DatabaseConf.PASSWORD);
-                PreparedStatement pstmtProducto = conexion.prepareStatement(INSERT_PRODUCTO,
-                        Statement.RETURN_GENERATED_KEYS)) {
-
+        final String INSERT_PRODUCTO = "INSERT INTO productos (nombre, precio, tipo, size) VALUES(?, ?, ?, ?)";
+        Connection conexion = null; // Declarar la conexión aquí
+    
+        try {
+            conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER, DatabaseConf.PASSWORD);
+            PreparedStatement pstmtProducto = conexion.prepareStatement(INSERT_PRODUCTO, Statement.RETURN_GENERATED_KEYS);
+    
             conexion.setAutoCommit(false);
-
+    
             if (existsByName(conexion, "productos", "nombre", producto.getNombre())) {
                 System.out.println("El Producto ya existe: " + producto.getNombre());
                 return; // Salir si existe
             }
-
+    
             List<Ingrediente> ingredientes = new ArrayList<>();
             // Insertar el Producto
             pstmtProducto.setString(1, producto.getNombre());
             pstmtProducto.setDouble(2, producto.getPrecio());
-
+    
             ingredientes = configurarProducto(producto, pstmtProducto);
-
+    
             pstmtProducto.executeUpdate();
-
+    
             System.out.println("Producto insertado correctamente.");
             // Obtiene el ID generado por el AUTO_INCREMENT
             try (ResultSet generatedKeys = pstmtProducto.getGeneratedKeys()) {
@@ -53,10 +52,29 @@ public class JdbcProductoDao implements ProductoDao {
                 }
             }
             gestionarIngredientesYRelaciones(conexion, producto, ingredientes);
-
+    
             conexion.commit();
+        } catch (SQLException e) {
+            if (conexion != null) {
+                try {
+                    conexion.rollback(); // Realizar el rollback
+                } catch (SQLException rollbackEx) {
+                    // Manejar la excepción del rollback
+                    rollbackEx.printStackTrace();
+                }
+            }
+            e.printStackTrace(); // Manejar la excepción original
+        } finally {
+            if (conexion != null) {
+                try {
+                    conexion.close(); // Cerrar la conexión
+                } catch (SQLException closeEx) {
+                    closeEx.printStackTrace(); // Manejar la excepción al cerrar
+                }
+            }
         }
     }
+    
 
     @Override
     public void updateProducto(Producto producto) throws SQLException {
