@@ -53,4 +53,12 @@ public class LineaPedido {
         return precio;
     }
 
+    @Override
+    public String toString() {
+        return "LineaPedido [id=" + id + ", cantidad=" + cantidad + ", producto=" + producto + ", precio=" + precio
+                + "]";
+    }
+
+    
+
 }

@@ -15,35 +15,88 @@ class ControladorClienteTest {
     ControladorCliente controladorCliente;
 
     @BeforeEach
-    void setUp() throws SQLException {
+    public void setUp() throws SQLException {
         DatabaseConf.dropAndCreateTables();
         controladorCliente = new ControladorCliente();
     }
-
+    
     @Test
     void testRegistrarCliente() throws SQLException {
-        Cliente cliente = new Cliente("12345678A", "Juan", "Calle 1", "600111222", "juan@correo.com", "password");
+        Cliente cliente = new Cliente("11111111Q", "Pepe", "Pepote", "600000000", "email@test.com", "password");
         controladorCliente.registrarCliente(cliente);
+    
+        assertEquals(1, cliente.getId());
     }
-
+    
     @Test
-    void testRegistrarClienteDuplicado() throws SQLException {
-        Cliente cliente = new Cliente("12345678A", "Juan", "Calle 1", "600111222", "juan@correo.com", "password");
+    void testRegistrarClienteExistente() throws SQLException {
+        Cliente cliente = new Cliente("11111111Q", "Pepe", "Pepote", "600000000", "email@test.com", "password");
         controladorCliente.registrarCliente(cliente);
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            controladorCliente.registrarCliente(cliente);
-        }, "Registrar un cliente duplicado debería lanzar una excepción.");
+    
+        Cliente clienteDuplicado = new Cliente("11111112R", "Juan", "Perez", "700000000", "email@test.com", "password2");
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            controladorCliente.registrarCliente(clienteDuplicado);
+        });
+    
+        assertEquals("Ya hay un usuario registrado con ese email.", exception.getMessage());
     }
-
+    
     @Test
-    void testEncontrarTodosLosClientes() throws SQLException {
-        Cliente cliente1 = new Cliente("12345678A", "Juan", "Calle 1", "600111222", "juan@correo.com", "password");
-        Cliente cliente2 = new Cliente("87654321B", "Ana", "Calle 2", "700333444", "ana@correo.com", "password");
+    void testLoginClienteExitoso() throws SQLException {
+        Cliente cliente = new Cliente("11111111Q", "Pepe", "Pepote", "600000000", "email@test.com", "password");
+        controladorCliente.registrarCliente(cliente);
+    
+        Cliente loggedInCliente = controladorCliente.loginCliente("email@test.com", "password");
+    
+        assertNotNull(loggedInCliente);
+        assertEquals(cliente.getId(), loggedInCliente.getId());
+    }
+    
+    @Test
+    void testLoginClienteFallido() throws SQLException {
+        Cliente cliente = new Cliente("11111111Q", "Pepe", "Pepote", "600000000", "email@test.com", "password");
+        controladorCliente.registrarCliente(cliente);
+    
+        Cliente loggedInCliente = controladorCliente.loginCliente("email@test.com", "wrongpassword");
+    
+        assertNull(loggedInCliente);
+    }
+    
+    @Test
+    void testActualizarCliente() throws SQLException {
+        Cliente cliente = new Cliente("11111111Q", "Pepe", "Pepote", "600000000", "email@test.com", "password");
+        controladorCliente.registrarCliente(cliente);
+    
+        cliente.setTelefono("611111111");
+        controladorCliente.actualizarCliente(cliente);
+    
+        Cliente updatedCliente = controladorCliente.loginCliente("email@test.com", "password");
+        assertEquals("611111111", updatedCliente.getTelefono());
+    }
+    
+    @Test
+    void testBorrarCliente() throws SQLException {
+        Cliente cliente = new Cliente("11111111Q", "Pepe", "Pepote", "600000000", "email@test.com", "password");
+        controladorCliente.registrarCliente(cliente);
+    
+        controladorCliente.borrarCliente(cliente);
+
+        cliente = controladorCliente.encontrarById(cliente.getId());
+
+        assertNull(cliente);
+    }
+    
+    @Test
+    void testEncontrarTodos() throws SQLException {
+        Cliente cliente1 = new Cliente("11111111Q", "Pepe", "Pepote", "600000000", "email1@test.com", "password");
+        Cliente cliente2 = new Cliente("11111112R", "Juan", "Perez", "700000000", "email2@test.com", "password");
+    
         controladorCliente.registrarCliente(cliente1);
         controladorCliente.registrarCliente(cliente2);
-
+    
         List<Cliente> clientes = controladorCliente.encontrarTodos();
-        assertEquals(2, clientes.size(), "Debería haber dos clientes registrados.");
+    
+        assertEquals(2, clientes.size());
     }
+    
 }

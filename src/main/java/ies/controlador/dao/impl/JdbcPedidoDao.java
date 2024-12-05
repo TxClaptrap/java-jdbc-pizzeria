@@ -42,10 +42,11 @@ public class JdbcPedidoDao implements PedidoDao {
                 pstmtPedido.setDouble(2, pedido.getPrecioTotal());
                 pstmtPedido.setInt(3, pedido.getCliente().getId());
                 pstmtPedido.setString(4, pedido.getEstado().name());  
-                if (pedido.getMetodoPago()!= null) {
-                    pstmtPedido.setString(5, pedido.getMetodoPago().getClass().getName().toUpperCase());  
-                }
-                else {
+                if (pedido.getMetodoPago() instanceof Pagar_Tarjeta) {
+                    pstmtPedido.setString(5, "PAGAR_TARJETA");
+                } else if (pedido.getMetodoPago() instanceof Pagar_Efectivo) {
+                    pstmtPedido.setString(5, "PAGAR_EFECTIVO");
+                } else {
                     pstmtPedido.setString(5, null);
                 }
                 pstmtPedido.executeUpdate();
@@ -105,12 +106,14 @@ public class JdbcPedidoDao implements PedidoDao {
                 pstmtUpdatePedido.setDouble(2, pedido.getPrecioTotal());
                 pstmtUpdatePedido.setInt(3, pedido.getCliente().getId());
                 pstmtUpdatePedido.setString(4, pedido.getEstado().name());
-                if (pedido.getMetodoPago()!= null) {
-                    pstmtUpdatePedido.setString(5, pedido.getMetodoPago().getClass().getName().toUpperCase());  
-                }
-                else {
+                if (pedido.getMetodoPago() instanceof Pagar_Tarjeta) {
+                    pstmtUpdatePedido.setString(5, "PAGAR_TARJETA");
+                } else if (pedido.getMetodoPago() instanceof Pagar_Efectivo) {
+                    pstmtUpdatePedido.setString(5, "PAGAR_EFECTIVO");
+                } else {
                     pstmtUpdatePedido.setString(5, null);
                 }
+
                 pstmtUpdatePedido.setInt(6, pedido.getId());
                 pstmtUpdatePedido.executeUpdate();
     
@@ -119,7 +122,10 @@ public class JdbcPedidoDao implements PedidoDao {
                 pstmtDeleteLineas.executeUpdate();
     
                 // Insertar las nuevas líneas
-                insertLineasPedido(conexion, pedido.getId(), pedido.getListaLineaPedidos());
+                if (!pedido.getListaLineaPedidos().isEmpty()) {
+                    insertLineasPedido(conexion, pedido.getId(), pedido.getListaLineaPedidos());
+                }
+                
     
                 conexion.commit();
             } catch (SQLException e) {
@@ -169,9 +175,7 @@ public class JdbcPedidoDao implements PedidoDao {
 
     @Override
     public Pedido findPedidoById(int idPedido) throws SQLException {
-        String FIND_PEDIDO_BY_ID = "SELECT pedidos.id, pedidos.fecha, pedidos.precio_total, pedidos.estado, pedidos.pago, pedidos.cliente_id " +
-                                   "FROM pedidos " +
-                                   "WHERE pedidos.id = ?";
+        String FIND_PEDIDO_BY_ID = "SELECT pedidos.id, pedidos.fecha, pedidos.precio_total, pedidos.cliente_id, pedidos.pago, pedidos.estado FROM pedidos LEFT JOIN lineaspedido ON pedidos.id = lineaspedido.pedido_id WHERE pedidos.id = ?";
         Pedido pedido = null;
     
         try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER, DatabaseConf.PASSWORD);
@@ -201,6 +205,7 @@ public class JdbcPedidoDao implements PedidoDao {
     
                 // Crear pedido
                 pedido = new Pedido(cliente);
+                pedido.setId(idPedido);
                 pedido.setFecha(fecha);
                 pedido.setPrecioTotal(precioTotal);
                 pedido.setEstado(estado);

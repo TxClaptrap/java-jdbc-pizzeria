@@ -23,7 +23,7 @@ ProductoDao productoDao = new JdbcProductoDao();
         productoDao.deleteProducto(producto);
     }
 
-    public Producto enontrarProductoById(int idProducto) throws SQLException {
+    public Producto encontrarProductoById(int idProducto) throws SQLException {
         return productoDao.findProductoById(idProducto);
     }
 

@@ -4,6 +4,7 @@ module ies.thiar {
     requires javafx.fxml;
     requires com.opencsv;
     requires java.sql;
+    requires junit;
 
     opens ies.vista to javafx.fxml;
     opens ies.modelo to java.xml.bind, com.opencsv;

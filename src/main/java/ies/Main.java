@@ -30,6 +30,7 @@ public class Main {
         ControladorProducto controladorProducto = new ControladorProducto();
 
         Cliente cliente = new Cliente("11111111P", "Pepe", "C/Falsa", "666000000", "zi@f.c", "cosa");
+        Cliente clienteDuplicado = new Cliente("11111111P", "Pepe", "C/Falsa", "666000000", "zi@f.c", "cosa");
         Cliente cliente2 = new Cliente("11111111Z", "Pepa", "C/Falsa", "766000000", "zo@f.c", "cosa");
 
         Ingrediente echamas = new Ingrediente("Queso", List.of("lactosa", "adictivos"));
@@ -47,8 +48,10 @@ public class Main {
 
         try {
             controladorCliente.registrarCliente(cliente);
+            //controladorCliente.registrarCliente(clienteDuplicado);
             controladorCliente.registrarCliente(cliente2);
             controladorCliente.borrarCliente(cliente2);
+            controladorCliente.registrarCliente(cliente2);
 
             cliente.setDni("22222222X");
 
@@ -69,7 +72,7 @@ public class Main {
             controladorProducto.registrarProducto(carbonara);
 
 
-            System.out.println(controladorProducto.enontrarProductoById(carbonara.getId()) + "****************************");
+            System.out.println(controladorProducto.encontrarProductoById(carbonara.getId()) + "****************************");
             
             System.out.println(carbonara);
             carbonara.setNombre("Pizza Carbonara");
@@ -81,11 +84,11 @@ public class Main {
             System.out.println(carbonara);
 
             controladorProducto.registrarProducto(aberrante);
-            System.out.println("****************" + controladorProducto.enontrarProductoById(aberrante.getId()));
+            System.out.println("****************" + controladorProducto.encontrarProductoById(aberrante.getId()));
             controladorProducto.registrarProducto(bolognese);
             ((Pizza) aberrante).setListaIngredientes(List.of(echamas, gazpacho, tomatico, chicha2));
             controladorProducto.actualizarProducto(aberrante);
-            System.out.println("****************" + controladorProducto.enontrarProductoById(aberrante.getId()));
+            System.out.println("****************" + controladorProducto.encontrarProductoById(aberrante.getId()));
             controladorProducto.registrarProducto(cola);
         } catch (SQLException e) {
             System.out.println("Te peinas" );
@@ -112,7 +115,13 @@ public class Main {
         System.out.println("\n\n******************************************************************************************");
         System.out.println("Probando Pedidos:");
 
-        Pedido pedido = new Pedido(cliente);
+        Pedido pedido;
+        try {
+            pedido = new Pedido(controladorCliente.loginCliente("zi@f.c", "cosa"));
+        } catch (SQLException e) {
+            pedido = null;
+            e.printStackTrace();
+        }
         ControladorPedido controladorPedido = new ControladorPedido(pedido);
         Pagar_Tarjeta pagoTarjeta = new Pagar_Tarjeta();
 
@@ -122,6 +131,10 @@ public class Main {
             controladorPedido.agregarLineaPedido(carbonara, 2);
             controladorPedido.agregarLineaPedido(aberrante, 1);
             controladorPedido.finalizarPedido(pagoTarjeta);
+            controladorPedido.entregarPedido(pedido.getId());
+            
+            System.out.println(pedido.getEstado());
+            
         } catch (IllegalAccessException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

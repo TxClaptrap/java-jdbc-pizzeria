@@ -55,7 +55,9 @@ public class JdbcProductoDao implements ProductoDao {
             gestionarIngredientesYRelaciones(conexion, producto, ingredientes);
 
             conexion.commit();
-        } catch (SQLException e) {
+            
+        } 
+        catch (SQLException e) {
             if (conexion != null) {
                 try {
                     conexion.rollback(); // TODO - Es necesario?
@@ -64,14 +66,6 @@ public class JdbcProductoDao implements ProductoDao {
                 }
             }
             e.printStackTrace();
-        } finally {
-            if (conexion != null) {
-                try {
-                    conexion.close(); // Cerrar conexión
-                } catch (SQLException closeEx) {
-                    closeEx.printStackTrace();
-                }
-            }
         }
     }
 

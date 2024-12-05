@@ -11,6 +11,7 @@ import java.util.List;
 
 import ies.controlador.dao.PedidoDao;
 import ies.controlador.dao.impl.JdbcPedidoDao;
+import ies.modelo.Cliente;
 import ies.modelo.EstadoPedido;
 
 public class ControladorPedido {
@@ -80,11 +81,6 @@ public class ControladorPedido {
             pedidoDao.updatePedido(pedidoActual);
 
             System.out.println("Producto " + producto.getNombre() + " agregado al pedido. Cantidad: " + cantidad);
-
-            // Cambiar el estado del pedido a PENDIENTE si no lo está
-            //TODO - Confirmar que no esté finalizado o entregado?
-
-            pedidoDao.updatePedido(pedidoActual); // Persistir el cambio de estado
         
         } catch (SQLException e) {
             System.err.println("Error al agregar la línea de pedido: " + e.getMessage());
@@ -166,8 +162,8 @@ public class ControladorPedido {
 
     */
 
-    public void cancelarPedido() throws IllegalAccessException, SQLException {
-        if (pedidoActual.getCliente() == null) {
+    public void cancelarPedido(Cliente clienteActual) throws IllegalAccessException, SQLException {
+        if (clienteActual == null) {
             throw new IllegalAccessException("No se puede agregar pedido sin estar logeado.");
         }
     
@@ -176,8 +172,8 @@ public class ControladorPedido {
             // Cambiar el estado del pedido a CANCELADO
             pedidoActual.setEstado(EstadoPedido.CANCELADO);
     
-            // Eliminar el pedido de la base de datos
-            pedidoDao.deletePedido(pedidoActual);
+            // Actualiza 
+            pedidoDao.updatePedido(pedidoActual);
     
             System.out.println("El pedido ha sido cancelado y eliminado de la base de datos.");
         } else {
@@ -200,13 +196,12 @@ public class ControladorPedido {
     }
         */
 
-        public void entregarPedido(int idPedido) throws SQLException {
+        public Pedido entregarPedido(int idPedido) throws SQLException {
             // Obtener el pedido de la base de datos
-            PedidoDao pedidoDao = new JdbcPedidoDao();
             Pedido pedido = pedidoDao.findPedidoById(idPedido);
         
             if (pedido != null) {
-                // Verificar si el estado es FINALIZADO
+                // Verificar si es FINALIZADO
                 if (pedido.getEstado() == EstadoPedido.FINALIZADO) {
                     pedido.setEstado(EstadoPedido.ENTREGADO);
         
@@ -214,11 +209,14 @@ public class ControladorPedido {
                     pedidoDao.updatePedido(pedido);
         
                     System.out.println("El pedido ha sido entregado.");
+                    return pedido;
                 } else {
                     System.out.println("No se puede entregar un pedido que no ha sido finalizado.");
+                    return pedido;
                 }
             } else {
                 System.out.println("El pedido con ID " + idPedido + " no existe.");
+                return null;
             }
         }
         
