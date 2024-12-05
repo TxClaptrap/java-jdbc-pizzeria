@@ -1,6 +1,6 @@
 package ies.modelo;
 
-public class PagarTarjeta implements Pagable {
+public class Pagar_Tarjeta implements Pagable {
 
     @Override
     public void pagar(double cantidad) {

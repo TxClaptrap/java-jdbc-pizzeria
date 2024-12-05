@@ -3,11 +3,14 @@ package ies;
 import java.sql.SQLException;
 import java.util.List;
 import ies.controlador.ControladorCliente;
+import ies.controlador.ControladorPedido;
 import ies.controlador.ControladorProducto;
 import ies.modelo.Bebida;
 import ies.modelo.Cliente;
 import ies.modelo.Ingrediente;
+import ies.modelo.Pagar_Tarjeta;
 import ies.modelo.Pasta;
+import ies.modelo.Pedido;
 import ies.modelo.Pizza;
 import ies.modelo.Producto;
 import ies.modelo.SIZE;
@@ -89,12 +92,12 @@ public class Main {
             e.printStackTrace();
         }
 
-        try {
+        /*try {
             controladorProducto.borrarProducto(carbonara);
         } catch (SQLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
+        }*/
 
         try {
             for (Producto p : controladorProducto.encontrarAllProductos()) {
@@ -108,6 +111,24 @@ public class Main {
 
         System.out.println("\n\n******************************************************************************************");
         System.out.println("Probando Pedidos:");
+
+        Pedido pedido = new Pedido(cliente);
+        ControladorPedido controladorPedido = new ControladorPedido(pedido);
+        Pagar_Tarjeta pagoTarjeta = new Pagar_Tarjeta();
+
+
+        try {
+            //controladorPedido.registrarPedido(pedido);
+            controladorPedido.agregarLineaPedido(carbonara, 2);
+            controladorPedido.agregarLineaPedido(aberrante, 1);
+            controladorPedido.finalizarPedido(pagoTarjeta);
+        } catch (IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
 
         /* Antiguo Main

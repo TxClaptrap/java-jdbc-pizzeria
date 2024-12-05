@@ -11,7 +11,6 @@ import java.util.List;
 
 import ies.controlador.dao.PedidoDao;
 import ies.controlador.dao.impl.JdbcPedidoDao;
-import ies.modelo.Cliente;
 import ies.modelo.EstadoPedido;
 
 public class ControladorPedido {
@@ -19,8 +18,8 @@ public class ControladorPedido {
     private Pedido pedidoActual;
     //private List<Pedido> listaFinalizados;
 
-    public ControladorPedido(int id, Cliente clienteActual) {
-        pedidoActual = new Pedido(id, clienteActual);
+    public ControladorPedido(Pedido pedido) {
+        pedidoActual = pedido;
         //listaFinalizados = new ArrayList<Pedido>();
     }
 
@@ -58,6 +57,9 @@ public class ControladorPedido {
             throw new IllegalAccessException("No se puede agregar un pedido sin un cliente logeado.");
         }
 
+        if (pedidoActual.getEstado() != EstadoPedido.PENDIENTE) {
+            pedidoActual = new Pedido(pedidoActual.getCliente());
+        }
         try {
             // El pedido existe en la base de datos?
             Pedido pedidoExistente = pedidoDao.findPedidoById(pedidoActual.getId());
@@ -72,10 +74,6 @@ public class ControladorPedido {
             // Crear la nueva línea
             LineaPedido nuevaLinea = new LineaPedido(cantidad, producto);
 
-            // Agregar la línea al pedido actual, si la lista es null, pues se crea una
-            if (pedidoActual.getListaLineaPedidos() == null) {
-                pedidoActual.setListaLineaPedidos(new ArrayList<>());
-            }
             pedidoActual.getListaLineaPedidos().add(nuevaLinea);
 
             // Persistir las líneas actualizadas del pedido
@@ -85,10 +83,9 @@ public class ControladorPedido {
 
             // Cambiar el estado del pedido a PENDIENTE si no lo está
             //TODO - Confirmar que no esté finalizado o entregado?
-            if (pedidoActual.getEstado() != EstadoPedido.PENDIENTE) {
-                pedidoActual.setEstado(EstadoPedido.PENDIENTE);
-                pedidoDao.updatePedido(pedidoActual); // Persistir el cambio de estado
-            }
+
+            pedidoDao.updatePedido(pedidoActual); // Persistir el cambio de estado
+        
         } catch (SQLException e) {
             System.err.println("Error al agregar la línea de pedido: " + e.getMessage());
             throw e;
@@ -117,10 +114,7 @@ public class ControladorPedido {
      * }
      */
 
-     public void finalizarPedido(Pagable metodo, Cliente cliente) throws IllegalAccessException, SQLException {
-        if (pedidoActual.getCliente() == null || !pedidoActual.getCliente().equals(cliente)) {
-            throw new IllegalAccessException("No se puede agregar pedido sin estar logeado.");
-        }
+     public void finalizarPedido(Pagable metodo) throws IllegalAccessException, SQLException {
     
         if (pedidoActual.getEstado() == EstadoPedido.PENDIENTE) {
             // Calcular el precio total del pedido
@@ -131,6 +125,7 @@ public class ControladorPedido {
             pedidoActual.setPrecioTotal(precioTotal);
     
             // Realizar el pago utilizando el método proporcionado
+            pedidoActual.setMetodoPago(metodo);
             metodo.pagar(pedidoActual.getPrecioTotal());
     
             // Cambiar el estado del pedido a FINALIZADO

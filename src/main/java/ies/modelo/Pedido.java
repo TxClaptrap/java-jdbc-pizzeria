@@ -9,13 +9,20 @@ public class Pedido {
     private LocalDate fecha;
     private List<LineaPedido> listaLineaPedidos; 
     private double precioTotal;
-    private MetodoPago metodoPago;
+    private Pagable metodoPago;
     private EstadoPedido estado;
 
     private Cliente cliente;
 
+    public Pedido(Cliente cliente) {
+        this.cliente = cliente;
+        fecha = LocalDate.now();
+        listaLineaPedidos = new ArrayList<>();
+        precioTotal = 0;
+        estado = EstadoPedido.PENDIENTE;
+    }
+
     public Pedido(int id, Cliente cliente) {
-        this.id = id;
         this.cliente = cliente;
         fecha = LocalDate.now();
         listaLineaPedidos = new ArrayList<>();
@@ -59,11 +66,11 @@ public class Pedido {
         this.listaLineaPedidos = listaLineaPedidos;
     }
 
-    public MetodoPago getMetodoPago() {
+    public Pagable getMetodoPago() {
         return metodoPago;
     }
 
-    public void setMetodoPago(MetodoPago metodoPago) {
+    public void setMetodoPago(Pagable metodoPago) {
         this.metodoPago = metodoPago;
     }
 
