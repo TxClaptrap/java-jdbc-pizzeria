@@ -24,18 +24,16 @@ public class ControladorProductoTest {
     ControladorProducto controladorProducto = new ControladorProducto();
 
     @BeforeEach
-    public void setUp() throws SQLException {
-        DatabaseConf.dropAndCreateTables(); // Limpia y reinicia las tablas.
+    public void prepararTest() throws SQLException {
+        DatabaseConf.dropAndCreateTables(); 
         controladorProducto = new ControladorProducto();
     }
 
     @Test
     public void testRegistrarProducto() throws SQLException {
-        Producto pizza = new Pizza("Pizza Margarita", 8.99, SIZE.MEDIANO, new ArrayList<>());
+        Producto pizza = new Pizza("Pizza Margarita", 9, SIZE.MEDIANO, new ArrayList<>());
         controladorProducto.registrarProducto(pizza);
-
         Producto productoEncontrado = controladorProducto.encontrarProductoById(pizza.getId());
-
         assertNotNull(productoEncontrado);
         assertEquals(pizza.getNombre(), productoEncontrado.getNombre());
         assertEquals(pizza.getPrecio(), productoEncontrado.getPrecio());
@@ -43,15 +41,12 @@ public class ControladorProductoTest {
 
     @Test
     public void testActualizarProducto() throws SQLException {
-        Producto bebida = new Bebida("Coca Cola", 2.50, SIZE.PEQUENO);
+        Producto bebida = new Bebida("Coca Cola", 2, SIZE.PEQUENO);
         controladorProducto.registrarProducto(bebida);
-
         bebida.setPrecio(3.00);
         bebida.setNombre("Coca Cola Zero");
         controladorProducto.actualizarProducto(bebida);
-
         Producto productoActualizado = controladorProducto.encontrarProductoById(bebida.getId());
-
         assertNotNull(productoActualizado);
         assertEquals(3.00, productoActualizado.getPrecio());
         assertEquals("Coca Cola Zero", productoActualizado.getNombre());
@@ -61,11 +56,8 @@ public class ControladorProductoTest {
     public void testBorrarProducto() throws SQLException {
         Producto pasta = new Pasta("Espagueti Carbonara", 7.50, new ArrayList<>());
         controladorProducto.registrarProducto(pasta);
-
         controladorProducto.borrarProducto(pasta);
-
         Producto productoBorrado = controladorProducto.encontrarProductoById(pasta.getId());
-
         assertNull(productoBorrado);
     }
 
@@ -73,25 +65,20 @@ public class ControladorProductoTest {
     public void testEncontrarProductoById() throws SQLException {
         Producto pizza = new Pizza("Pizza Cuatro Quesos", 10.99, SIZE.GRANDE, new ArrayList<>());
         controladorProducto.registrarProducto(pizza);
-
         Producto productoEncontrado = controladorProducto.encontrarProductoById(pizza.getId());
-
         assertNotNull(productoEncontrado);
         assertEquals(pizza.getId(), productoEncontrado.getId());
     }
 
     @Test
     public void testEncontrarTodosLosProductos() throws SQLException {
-        Producto pizza = new Pizza("Pizza Margarita", 8.99, SIZE.MEDIANO, new ArrayList<>());
-        Producto bebida = new Bebida("Coca Cola", 2.50, SIZE.PEQUENO);
-        Producto pasta = new Pasta("Espagueti Carbonara", 7.50, new ArrayList<>());
-
+        Producto pizza = new Pizza("Pizza Margarita", 9, SIZE.MEDIANO, new ArrayList<>());
+        Producto bebida = new Bebida("Coca Cola", 2, SIZE.PEQUENO);
+        Producto pasta = new Pasta("Espagueti Carbonara", 7, new ArrayList<>());
         controladorProducto.registrarProducto(pizza);
         controladorProducto.registrarProducto(bebida);
         controladorProducto.registrarProducto(pasta);
-
         List<Producto> productos = controladorProducto.encontrarAllProductos();
-
         assertEquals(3, productos.size());
         assertTrue(productos.stream().anyMatch(p -> p instanceof Pizza && p.getNombre().equals("Pizza Margarita")));
         assertTrue(productos.stream().anyMatch(p -> p instanceof Bebida && p.getNombre().equals("Coca Cola")));

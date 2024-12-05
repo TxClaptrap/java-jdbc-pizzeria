@@ -53,6 +53,8 @@ public class Main {
             controladorCliente.borrarCliente(cliente2);
             controladorCliente.registrarCliente(cliente2);
 
+            
+
             cliente.setDni("22222222X");
 
             controladorCliente.actualizarCliente(cliente);
@@ -132,8 +134,6 @@ public class Main {
             controladorPedido.agregarLineaPedido(aberrante, 1);
             controladorPedido.finalizarPedido(pagoTarjeta);
             controladorPedido.entregarPedido(pedido.getId());
-            
-            System.out.println(pedido.getEstado());
             
         } catch (IllegalAccessException e) {
             // TODO Auto-generated catch block

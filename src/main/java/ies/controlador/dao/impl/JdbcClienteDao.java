@@ -29,7 +29,6 @@ public class JdbcClienteDao implements ClienteDao {
                 PreparedStatement pstmtCliente = conexion.prepareStatement(INSERT_CLIENTE,
                         Statement.RETURN_GENERATED_KEYS)) {
             {
-                // Insertar el Cliente
                 pstmtCliente.setString(1, cliente.getDni());
                 pstmtCliente.setString(2, cliente.getNombre());
                 pstmtCliente.setString(3, cliente.getDireccion());
@@ -74,7 +73,6 @@ public class JdbcClienteDao implements ClienteDao {
         try (Connection conexion = DriverManager.getConnection(DatabaseConf.URL, DatabaseConf.USER, DatabaseConf.PASSWORD);
              PreparedStatement pstmtCliente = conexion.prepareStatement(DELETE_CLIENTE)) {
             pstmtCliente.setInt(1, cliente.getId());
-    
             int rowsDeleted = pstmtCliente.executeUpdate();
             if (rowsDeleted > 0) {
                 System.out.println("Cliente eliminado correctamente.");
@@ -90,11 +88,9 @@ public class JdbcClienteDao implements ClienteDao {
              PreparedStatement pstmtCliente = conexion.prepareStatement(FIND_BY_ID)) {
             pstmtCliente.setInt(1, id);
             ResultSet rSet = pstmtCliente.executeQuery();
-    
             if (!rSet.next()) {
                 return null;
             }
-    
             Cliente cliente = new Cliente(rSet.getInt("id"), rSet.getString("dni"), rSet.getString("nombre"),
                     rSet.getString("direccion"), rSet.getString("telefono"),
                     rSet.getString("email"), rSet.getString("password"));
@@ -111,16 +107,13 @@ public class JdbcClienteDao implements ClienteDao {
                 PreparedStatement pstmtCliente = conexion.prepareStatement(FIND_EMAIL)) {
             pstmtCliente.setString(1, email);
             ResultSet rSet = pstmtCliente.executeQuery();
-
             if (!rSet.next()) {
                 return null;
             }
-
             Cliente cliente = new Cliente(rSet.getInt("id"), rSet.getString("clientes.dni"),
                     rSet.getString("clientes.nombre"),
                     rSet.getString("clientes.direccion"), rSet.getString("clientes.telefono"),
                     rSet.getString("clientes.email"), rSet.getString("clientes.password"));
-
             System.out.print("\nCliente encontrado correctamente:");
             return cliente;
         }
